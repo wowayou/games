@@ -62,17 +62,37 @@ for(const b of S.balls){
     if(b.y<b.r+70){b.y=b.r+70+0.5;b.vy=Math.abs(b.vy);audio.hit()}
     // 挡板碰撞：扩大判定区间，防止穿透
     if(b.y+b.r>H-83&&b.y-b.r<H-70&&b.vy>0&&b.x>p.x-p.w/2-b.r&&b.x<p.x+p.w/2+b.r){
-      b.y=H-83-b.r;b.vx=((b.x-p.x)/(p.w/2))*S.speed*1.2;b.vy=-Math.abs(b.vy);
+      b.y=H-83-b.r;
+      // 挡板反弹：命中位置决定角度，保持总速度恒定
+      const hitPos=(b.x-p.x)/(p.w/2); // -1 到 1
+      const angle=hitPos*1.0; // 最大 ±57°
+      b.vx=S.speed*Math.sin(angle);b.vy=-S.speed*Math.cos(angle);
       S.combo=Math.max(S.combo,1);audio.hit();break}
-    // 敌人碰撞
+    // 敌人碰撞：基于穿透深度的反弹
     for(const e of S.enemies){
       if(e.dead)continue;
       if(b.x+b.r>e.x&&b.x-b.r<e.x+e.w&&b.y+b.r>e.y&&b.y-b.r<e.y+e.h){
         damageEnemy(e,b);
         if(b.pierce>0)b.pierce--;
-        else{const cx=b.x-(e.x+e.w/2),cy=b.y-(e.y+e.h/2);
-          if(Math.abs(cx/e.w)>Math.abs(cy/e.h)){b.vx*=-1;b.x+=b.vx*0.3}
-          else{b.vy*=-1;b.y+=b.vy*0.3}}
+        else{
+          // 计算各轴穿透深度
+          const penLeft=b.x+b.r-e.x,penRight=e.x+e.w-(b.x-b.r);
+          const penTop=b.y+b.r-e.y,penBottom=e.y+e.h-(b.y-b.r);
+          const minPenX=Math.min(penLeft,penRight),minPenY=Math.min(penTop,penBottom);
+          // 选穿透较浅的轴反弹
+          if(minPenX<minPenY){
+            // 水平反弹：仅当球朝墙运动时才翻转
+            if((penLeft<penRight&&b.vx>0)||(penRight<penLeft&&b.vx<0))b.vx*=-1;
+            // 推出砖块
+            b.x+=penLeft<penRight?minPenX:-minPenX;
+          }else{
+            if((penTop<penBottom&&b.vy>0)||(penBottom<penTop&&b.vy<0))b.vy*=-1;
+            b.y+=penTop<penBottom?minPenY:-minPenY;
+          }
+          // 保持速度恒定（防止反弹后变快/变慢）
+          const sp=Math.hypot(b.vx,b.vy)||1;
+          b.vx=b.vx/sp*S.speed;b.vy=b.vy/sp*S.speed;
+        }
         break}
     }
   }
