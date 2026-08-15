@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#050612">
+  <meta name="description" content="NEON VELOCITY — 零构建 Three.js 赛博朋克 3D 赛车游戏">
+  <title>NEON VELOCITY // 霓虹极速</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='52' font-size='52'>🏎️</text></svg>">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+  <div id="game" aria-label="3D 赛博朋克赛车游戏"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div id="damageFlash" aria-hidden="true"></div>
+
+  <header class="topbar glass hidden" id="topbar">
+    <div class="logo-small"><i></i><span>NEON<br><b>VELOCITY</b></span></div>
+    <div class="race-state"><span id="position">1</span><small>/ 4<br>名次</small></div>
+    <div class="race-state"><span id="lap">1</span><small>/ 3<br>圈数</small></div>
+    <button id="soundBtn" class="icon-btn" title="声音开关（M）" aria-label="声音开关">♫</button>
+    <button id="pauseBtn" class="icon-btn" title="暂停（P）" aria-label="暂停">Ⅱ</button>
+  </header>
+
+  <section id="timing" class="timing glass hidden">
+    <div><label>当前</label><strong id="raceTime">00:00.000</strong></div>
+    <div><label>本圈</label><span id="lapTime">00:00.000</span></div>
+    <div><label>最佳</label><span id="bestTime">--:--.---</span></div>
+  </section>
+
+  <section id="speedPanel" class="speed-panel hidden" aria-label="车辆状态">
+    <div class="speed"><strong id="speed">0</strong><span>KM/H</span></div>
+    <div class="tach"><span id="gear">N</span><small>GEAR</small></div>
+    <div class="bar-label"><span>N₂O 氮气</span><b id="nitroPercent">100%</b></div>
+    <div class="meter nitro"><i id="nitroBar"></i></div>
+    <div class="bar-label heat-label"><span>INTEGRITY 车体</span><b id="healthPercent">100%</b></div>
+    <div class="meter health"><i id="healthBar"></i></div>
+  </section>
+
+  <div id="minimap" class="minimap glass hidden" aria-label="小地图"><canvas id="mapCanvas" width="180" height="180"></canvas></div>
+  <div id="message" class="message hidden"></div>
+  <div id="countdown" class="countdown hidden"></div>
+  <div id="boostVignette" aria-hidden="true"></div>
+
+  <div id="touchControls" class="touch-controls hidden">
+    <div class="touch-steer">
+      <button data-key="KeyA" aria-label="左转">‹</button><button data-key="KeyD" aria-label="右转">›</button>
+    </div>
+    <div class="touch-pedals">
+      <button class="nitro-touch" data-key="ShiftLeft" aria-label="氮气">N₂O</button>
+      <button data-key="KeyS" aria-label="刹车">▼</button><button class="gas" data-key="KeyW" aria-label="加速">▲</button>
+    </div>
+  </div>
+
+  <main id="startScreen" class="screen active">
+    <div class="start-bg"><div class="horizon"></div></div>
+    <div class="hero">
+      <div class="eyebrow"><span></span> NIGHT CIRCUIT 2088 <span></span></div>
+      <h1>NEON<br><em>VELOCITY</em></h1>
+      <p class="cn-title">霓虹极速</p>
+      <p class="tagline">穿越新九龙的暴雨与霓虹，甩开企业车队。</p>
+      <button id="startBtn" class="primary"><span>启动引擎</span><b>ENTER</b></button>
+      <div class="controls-card glass">
+        <div><kbd>W</kbd><span>油门</span></div><div><kbd>S</kbd><span>刹车 / 倒车</span></div>
+        <div><kbd>A</kbd><kbd>D</kbd><span>转向</span></div><div><kbd>⇧</kbd><span>氮气</span></div>
+      </div>
+      <p class="hint">键盘 WASD · Shift 氮气 · P 暂停 · M 静音</p>
+    </div>
+    <div class="corner-data left">LAT 22.3193° N<br>LON 114.1694° E</div>
+    <div class="corner-data right">WEATHER / ACID RAIN<br>TRACK / SKYLINE LOOP</div>
+  </main>
+
+  <section id="pauseScreen" class="screen overlay-screen">
+    <div class="modal glass">
+      <div class="eyebrow">SYSTEM HOLD</div><h2>游戏暂停</h2>
+      <button id="resumeBtn" class="primary"><span>继续比赛</span><b>P</b></button>
+      <button id="restartPauseBtn" class="secondary">重新开始</button>
+    </div>
+  </section>
+
+  <section id="endScreen" class="screen overlay-screen">
+    <div class="modal result glass">
+      <div class="eyebrow" id="resultEyebrow">RACE COMPLETE</div>
+      <h2 id="resultTitle">任务完成</h2>
+      <div class="podium"><span id="finalPosition">1</span><sup>ST</sup><small>最终名次</small></div>
+      <div class="result-grid">
+        <div><label>总用时</label><strong id="finalTime">00:00.000</strong></div>
+        <div><label>最佳圈速</label><strong id="finalBest">00:00.000</strong></div>
+        <div><label>碰撞次数</label><strong id="finalCrashes">0</strong></div>
+      </div>
+      <button id="restartBtn" class="primary"><span>再次出发</span><b>R</b></button>
+    </div>
+  </section>
+
+  <div id="loading" class="loading"><div class="loader"><i></i></div><span>正在连接夜城网络...</span></div>
+  <noscript>本游戏需要启用 JavaScript。</noscript>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
