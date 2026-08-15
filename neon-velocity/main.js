@@ -408,6 +408,16 @@ function syncCar(car, dt) {
 
 const camDesired = new THREE.Vector3();
 const camLook = new THREE.Vector3();
+// 遮挡检测：从玩家到相机的射线，若被场景物体挡住则拉近相机
+const camRay = new THREE.Raycaster();
+const camRayDir = new THREE.Vector3();
+const camRayTarget = new THREE.Vector3();
+const camRayOrigin = new THREE.Vector3();
+// 仅检测城市建筑等大型碰撞体，不检测赛道和粒子
+let occluders = [];
+let occluderFrame = 0;
+let _lastOccluderHits = null;
+const terrainHit = { distance: 0, lateral: 0, index: 0, height: 0 };
 
 function updateCamera(dt) {
   const c = player;
@@ -428,6 +438,71 @@ function updateCamera(dt) {
   }
 
   camera.position.lerp(camDesired, 1 - Math.exp(-9 * dt));
+
+  // ---- 地形遮挡修正 ----
+  // 当车辆越过坡顶时，后方相机的视线会被地形挡住，下半屏变黑。
+  // 在车辆到相机之间的赛道上采样若干点，若某点路面高于视线高度，则抬高相机。
+  {
+    const carY = c.pos.y + 1.2;
+    const camX = camera.position.x, camY = camera.position.y, camZ = camera.position.z;
+    const dx = camX - c.pos.x, dz = camZ - c.pos.z;
+    const camDist = Math.hypot(dx, dz);
+    if (camDist > 1) {
+      let needRaise = 0;
+      const samples = 5;
+      for (let si = 1; si <= samples; si++) {
+        const t = si / (samples + 1);
+        const sx = c.pos.x + dx * t, sz = c.pos.z + dz * t;
+        const hit = path.project({ x: sx, y: 0, z: sz }, c.hintIndex, terrainHit);
+        const surfY = hit.height + 0.5;
+        const lineY = carY + (camY - carY) * t;
+        if (surfY > lineY) {
+          needRaise = Math.max(needRaise, surfY - lineY);
+        }
+      }
+      if (needRaise > 0) {
+        camera.position.y += needRaise + 1.0;
+      }
+    }
+  }
+
+  // ---- 建筑遮挡修正（每 3 帧一次）----
+  occluderFrame = (occluderFrame + 1) % 3;
+  if (!occluders.length) {
+    const _s = new THREE.Vector3();
+    scene.traverse((obj) => {
+      if (!obj.isMesh || !obj.geometry) return;
+      if (obj.isInstancedMesh && obj.instanceMatrix) {
+        occluders.push(obj);
+        return;
+      }
+      if (obj.geometry.type === 'BoxGeometry') {
+        if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+        if (obj.geometry.boundingBox) {
+          obj.geometry.boundingBox.getSize(_s);
+          if (Math.max(_s.x, _s.y, _s.z) > 5) occluders.push(obj);
+        }
+      }
+    });
+  }
+  if (occluderFrame === 0 && occluders.length) {
+    camRayTarget.copy(camera.position);
+    camRayDir.subVectors(camRayTarget, c.pos).normalize();
+    camRayOrigin.set(c.pos.x, c.pos.y + 1.2, c.pos.z);
+    camRay.set(camRayOrigin, camRayDir);
+    camRay.far = camRayOrigin.distanceTo(camRayTarget);
+    _lastOccluderHits = camRay.intersectObjects(occluders, false);
+  }
+  if (_lastOccluderHits && _lastOccluderHits.length > 0) {
+    const hit = _lastOccluderHits[0];
+    const safeDist = hit.distance - 1.5;
+    if (safeDist > 2) {
+      camera.position.copy(c.pos).add(new THREE.Vector3(0, 1.2, 0)).addScaledVector(camRayDir, safeDist);
+    } else {
+      camera.position.y = Math.max(camDesired.y, c.pos.y + 5.5);
+    }
+  }
+
   camLook.set(c.pos.x + fx * 13, c.pos.y + 1.7, c.pos.z + fz * 13);
   camera.lookAt(camLook);
 
