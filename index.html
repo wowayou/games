@@ -1,1 +1,40 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="wowayou 的浏览器游戏实验场"><title>ARCADE // 游戏实验场</title><style>@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Noto+Sans+SC:wght@400;700;900&display=swap');*{box-sizing:border-box}body{min-height:100vh;margin:0;color:#f2f7ff;font-family:Orbitron,'Noto Sans SC',sans-serif;background:#070812;background-image:radial-gradient(circle at 12% 15%,#152d6833,transparent 28%),radial-gradient(circle at 88% 78%,#74163238,transparent 29%),repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 5px)}main{max-width:1150px;margin:auto;padding:78px 26px}header{text-align:center;margin-bottom:58px}.eyebrow{color:#28f7ff;letter-spacing:5px;font-size:10px}.eyebrow:before,.eyebrow:after{content:'—';margin:0 13px;color:#ff2aa8}h1{font-size:clamp(42px,8vw,90px);font-style:italic;letter-spacing:-5px;margin:16px 0 9px;text-shadow:3px 2px #ff2aa8,0 0 30px #28f7ff55}header p{font-family:'Noto Sans SC';color:#9eb1c9;margin:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.game{min-height:360px;position:relative;overflow:hidden;padding:35px;text-decoration:none;color:white;border:1px solid #304877;background:#091021;transition:.25s;isolation:isolate}.game:before{content:'';z-index:-1;position:absolute;inset:0;background:linear-gradient(130deg,#14366388,transparent 55%);opacity:.8}.game.forge:before{background:radial-gradient(circle at 70% 60%,#f9501638,transparent 45%),linear-gradient(130deg,#54150e99,transparent 55%)}.game:hover{transform:translateY(-8px);border-color:#28f7ff;box-shadow:0 22px 48px #0008}.forge:hover{border-color:#ffd05a}.badge{font-size:10px;letter-spacing:2px;color:#28f7ff}.forge .badge{color:#ffd05a}.game h2{font-size:clamp(30px,4vw,50px);font-style:italic;line-height:.86;margin:18px 0 8px;letter-spacing:-2px}.game h2 em{display:block;color:transparent;-webkit-text-stroke:1px #ff2aa8}.forge h2 em{-webkit-text-stroke:1px #ff9b37}.cn{font-family:'Noto Sans SC';font-weight:900;color:#ff79bf}.forge .cn{color:#ffbb55}.desc{font-family:'Noto Sans SC';font-size:13px;line-height:1.75;color:#bdcadb;max-width:330px;margin-top:19px}.tags{position:absolute;bottom:28px;left:35px;display:flex;gap:7px;flex-wrap:wrap}.tags span{padding:5px 8px;font:9px 'Noto Sans SC';border:1px solid #3e6b85;color:#a4e8ff}.forge .tags span{border-color:#8b5130;color:#ffd09b}.arrow{position:absolute;bottom:26px;right:30px;font-size:28px;color:#28f7ff}.forge .arrow{color:#ffd05a}footer{text-align:center;margin-top:45px;color:#536078;font:11px 'Noto Sans SC'}@media(max-width:700px){main{padding:48px 16px}.grid{grid-template-columns:1fr}.game{min-height:310px}}</style></head><body><main><header><div class="eyebrow">WOWAYOU WEB LABS</div><h1>GAME ARCADE</h1><p>两款零构建、纯前端浏览器游戏 · 音效与数据均在本地运行</p></header><section class="grid"><a class="game" href="neon-velocity/"><div class="badge">THREE.JS · 3D RACING</div><h2>NEON <em>VELOCITY</em></h2><div class="cn">霓虹极速</div><p class="desc">穿越雨夜新九龙：WASD 驾驶、硬核 AI、加速带、有限氮气、碰撞与三圈计时。</p><div class="tags"><span>赛博朋克</span><span>3D 城市</span><span>合成音乐</span></div><div class="arrow">→</div></a><a class="game forge" href="forge-breaker/"><div class="badge">ROGUELITE · BREAKOUT</div><h2>HELL <em>FORGE</em></h2><div class="cn">地狱熔炉</div><p class="desc">把元素球打入深渊：火冰雷构筑、融合进化、Boss 波次、矿石锻造与炉心保卫。</p><div class="tags"><span>肉鸽打砖块</span><span>球种融合</span><span>锻造升级</span></div><div class="arrow">→</div></a></section><footer>© wowayou · 无追踪 · 无后端 · 你的记录只在浏览器本地</footer></main></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="wowayou 的浏览器游戏实验场">
+<title>ARCADE // 游戏实验场</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Noto+Sans+SC:wght@400;700;900&display=swap');
+*{box-sizing:border-box}body{min-height:100vh;margin:0;color:#f2f7ff;font-family:Orbitron,'Noto Sans SC',sans-serif;background:#070812;background-image:radial-gradient(circle at 12% 15%,#152d6833,transparent 28%),radial-gradient(circle at 88% 78%,#74163238,transparent 29%),repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 5px)}main{max-width:1150px;margin:auto;padding:78px 26px}header{text-align:center;margin-bottom:58px}.eyebrow{color:#28f7ff;letter-spacing:5px;font-size:10px}.eyebrow:before,.eyebrow:after{content:'-';margin:0 13px;color:#ff2aa8}h1{font-size:clamp(42px,8vw,90px);font-style:italic;letter-spacing:0;margin:16px 0 9px;text-shadow:3px 2px #ff2aa8,0 0 30px #28f7ff55}header p{font-family:'Noto Sans SC';color:#9eb1c9;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.game{min-height:360px;position:relative;overflow:hidden;padding:30px;text-decoration:none;color:white;border:1px solid #304877;background:#091021;transition:.25s;isolation:isolate}.game:before{content:'';z-index:-1;position:absolute;inset:0;background:linear-gradient(130deg,#14366388,transparent 55%);opacity:.8}.game.forge:before{background:radial-gradient(circle at 70% 60%,#f9501638,transparent 45%),linear-gradient(130deg,#54150e99,transparent 55%)}.game.tower:before{background:radial-gradient(circle at 70% 60%,#22c7a638,transparent 45%),linear-gradient(130deg,#07555d99,transparent 55%)}.game:hover{transform:translateY(-8px);border-color:#28f7ff;box-shadow:0 22px 48px #0008}.forge:hover{border-color:#ffd05a}.tower:hover{border-color:#59e0cd}.badge{font-size:10px;letter-spacing:2px;color:#28f7ff}.forge .badge{color:#ffd05a}.tower .badge{color:#62ecd5}.game h2{font-size:clamp(28px,3vw,43px);font-style:italic;line-height:.9;margin:18px 0 8px;letter-spacing:0}.game h2 em{display:block;color:transparent;-webkit-text-stroke:1px #ff2aa8}.forge h2 em{-webkit-text-stroke:1px #ff9b37}.tower h2 em{-webkit-text-stroke:1px #61e2d3}.cn{font-family:'Noto Sans SC';font-weight:900;color:#ff79bf}.forge .cn{color:#ffbb55}.tower .cn{color:#6fe8d7}.desc{font-family:'Noto Sans SC';font-size:13px;line-height:1.75;color:#bdcadb;max-width:330px;margin-top:19px}.tags{position:absolute;bottom:28px;left:30px;display:flex;gap:7px;flex-wrap:wrap}.tags span{padding:5px 8px;font:9px 'Noto Sans SC';border:1px solid #3e6b85;color:#a4e8ff}.forge .tags span{border-color:#8b5130;color:#ffd09b}.tower .tags span{border-color:#2c817e;color:#8ff7e9}.arrow{position:absolute;bottom:24px;right:26px;font-size:28px;color:#28f7ff}.forge .arrow{color:#ffd05a}.tower .arrow{color:#61e2d3}footer{text-align:center;margin-top:45px;color:#536078;font:11px 'Noto Sans SC'}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){main{padding:48px 16px}.grid{grid-template-columns:1fr}.game{min-height:310px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">WOWAYOU WEB LABS</div>
+  <h1>GAME ARCADE</h1>
+  <p>三款零构建、纯前端浏览器游戏，音效与数据均在本地运行</p>
+</header>
+<section class="grid">
+  <a class="game" href="neon-velocity/">
+    <div class="badge">THREE.JS · 3D RACING</div><h2>NEON <em>VELOCITY</em></h2><div class="cn">霓虹极速</div>
+    <p class="desc">穿越雨夜新九龙：WASD 驾驶、硬核 AI、加速带、有限氮气、碰撞与三圈计时。</p>
+    <div class="tags"><span>赛博朋克</span><span>3D 城市</span><span>合成音乐</span></div><div class="arrow">→</div>
+  </a>
+  <a class="game forge" href="forge-breaker/">
+    <div class="badge">ROGUELITE · BREAKOUT</div><h2>HELL <em>FORGE</em></h2><div class="cn">地狱熔炉</div>
+    <p class="desc">把元素球打入深渊：火冰雷构筑、融合进化、Boss 波次、矿石锻造与炉心保卫。</p>
+    <div class="tags"><span>肉鸽打砖块</span><span>球种融合</span><span>锻造升级</span></div><div class="arrow">→</div>
+  </a>
+  <a class="game tower" href="tower-of-pieces/">
+    <div class="badge">ROGUELIKE · AUTO BATTLER</div><h2>CHESS <em>TOWER</em></h2><div class="cn">棋阵塔</div>
+    <p class="desc">AI 导师带你招募、布阵与读局。凑齐阵营羁绊，自动战斗，逐层征服策略高塔。</p>
+    <div class="tags"><span>自走棋</span><span>AI 入门</span><span>爬塔构筑</span></div><div class="arrow">→</div>
+  </a>
+</section>
+<footer>© wowayou · 无追踪 · 无后端 · 你的记录只在浏览器本地</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>棋阵塔 · Tower of Chess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Noto+Sans+SC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game-root">
+  <header id="hud">
+    <div class="hud-left">
+      <span class="floor-badge" id="floor-badge">第 <b>1</b> 层</span>
+      <div class="hp-wrap">
+        <span class="hp-icon">❤</span>
+        <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
+        <span class="hp-text" id="hp-text">20/20</span>
+      </div>
+    </div>
+    <div class="hud-center"><h1 class="title">棋阵塔</h1></div>
+    <div class="hud-right">
+      <span class="gold-badge" id="gold-badge">💰 <b>10</b></span>
+      <button id="tutor-toggle" class="tutor-toggle active" title="按 T 切换">
+        <span class="tutor-icon">🤖</span><span class="tutor-label">导师·自动</span>
+      </button>
+    </div>
+  </header>
+
+  <div id="tutor-panel" class="tutor-panel hidden">
+    <div class="tutor-avatar">🤖</div>
+    <div class="tutor-bubble"><span id="tutor-text"></span></div>
+  </div>
+
+  <main id="stage">
+    <section id="enemy-info" class="enemy-info">
+      <div class="section-title"><span>⚔ 敌方阵容</span><span id="enemy-power" class="power-tag"></span></div>
+      <div id="enemy-board" class="board enemy-board"></div>
+    </section>
+
+    <section class="battle-section">
+      <canvas id="battle-canvas" width="680" height="300"></canvas>
+      <div id="battle-overlay" class="battle-overlay hidden"><div class="overlay-result" id="overlay-result"></div></div>
+      <div id="battle-log" class="battle-log"></div>
+    </section>
+
+    <section id="player-info" class="player-info">
+      <div class="section-title"><span>🛡 我方阵容</span><span id="synergy-tags" class="synergy-tags"></span></div>
+      <div id="player-board" class="board player-board"></div>
+      <div class="bench-section"><span class="bench-label">替补席</span><div id="bench" class="bench"></div></div>
+    </section>
+
+    <section id="shop-section" class="shop-section">
+      <div class="section-title"><span>🛒 商店</span>
+        <button id="reroll-btn" class="reroll-btn">🔄 刷新 <b>1💰</b></button>
+      </div>
+      <div id="shop" class="shop"></div>
+    </section>
+  </main>
+
+  <footer id="action-bar">
+    <button id="fight-btn" class="action-btn primary">⚔ 开战</button>
+    <button id="next-btn" class="action-btn success hidden">⬆ 下一层</button>
+    <button id="restart-btn" class="action-btn danger hidden">↻ 重新挑战</button>
+  </footer>
+</div>
+
+<div id="splash" class="splash">
+  <div class="splash-content">
+    <div class="splash-icon">⚔️🏰</div>
+    <h1 class="splash-title">棋阵塔</h1>
+    <p class="splash-sub">roguelike 自走棋 · AI导师陪你入门</p>
+    <div class="splash-rules">
+      <div class="rule"><span class="rule-num">1</span><span>爬<b>10层塔</b>，每层一个自走棋对局</span></div>
+      <div class="rule"><span class="rule-num">2</span><span>金币<b>招募棋子</b>，3个同类自动升星</span></div>
+      <div class="rule"><span class="rule-num">3</span><span>凑<b>阵营羁绊</b>获得强力加成</span></div>
+      <div class="rule"><span class="rule-num">4</span><span>布阵后<b>自动战斗</b>，前排扛伤后排输出</span></div>
+      <div class="rule"><span class="rule-num">5</span><span>前3层<b>AI导师全程代打</b>，随时按 <kbd>T</kbd> 接管</span></div>
+    </div>
+    <button id="start-btn" class="action-btn primary big">开始挑战</button>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
