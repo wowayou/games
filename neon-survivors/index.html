@@ -3,90 +3,95 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="description" content="霓虹幸存者：纯前端割草生存游戏，自动攻击、技能升级、满屏弹幕">
-<title>NEON SURVIVORS // 霓虹幸存者</title>
+<meta name="description" content="霓虹幸存者：科技废土割草生存">
+<title>NEON SURVIVORS // 铁锈终端</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Noto+Sans+SC:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <canvas id="game"></canvas>
 
+<!-- CRT 扫描线 overlay -->
+<div id="scanlines"></div>
+
 <!-- 受击/低血量边缘反馈层 -->
 <div id="vignette-hurt" class="vignette-layer"></div>
 <div id="vignette-lowhp" class="vignette-layer"></div>
 
-<!-- 屏外敌人方向指示器容器 -->
+<!-- 屏外敌人方向指示器 -->
 <div id="offscreen-indicators" class="hidden"></div>
 
-<!-- 顶部 HUD：左上时间/等级，右上金币/击杀 -->
+<!-- 顶部 HUD -->
 <div id="hud" class="hidden">
-  <div class="hud-left">
-    <div class="hud-stat"><span class="lbl">时间</span><span id="hud-time" class="val">0:00</span></div>
-    <div class="hud-stat"><span class="lbl">等级</span><span id="hud-level" class="val">1</span></div>
+  <div class="hud-block hud-left">
+    <div class="hud-stat"><span class="lbl">TIME</span><span id="hud-time" class="val">0:00</span></div>
+    <div class="hud-stat"><span class="lvl-lbl">LV</span><span id="hud-level" class="val">1</span></div>
   </div>
-  <div class="hud-right">
-    <div class="hud-stat gold"><span class="lbl">金币</span><span id="hud-gold" class="val">0</span></div>
-    <div class="hud-stat"><span class="lbl">击杀</span><span id="hud-kills" class="val">0</span></div>
+  <div class="hud-block hud-right">
+    <div class="hud-stat gold"><span class="lbl">CRED</span><span id="hud-gold" class="val">0</span></div>
+    <div class="hud-stat"><span class="lbl">KILL</span><span id="hud-kills" class="val">0</span></div>
   </div>
-  <div class="xp-wrap"><div id="hud-xp" class="xp-bar"></div><span id="xp-lvl-badge" class="xp-lvl-badge">1</span></div>
+  <div class="xp-wrap">
+    <div id="hud-xp" class="xp-bar"></div>
+  </div>
 </div>
 
 <!-- 暂停按钮 -->
 <button id="pause-btn" class="hidden" aria-label="暂停">
-  <svg viewBox="0 0 24 24" width="16" height="16"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
+  <svg viewBox="0 0 24 24" width="14" height="14"><rect x="5" y="4" width="5" height="16" fill="currentColor"/><rect x="14" y="4" width="5" height="16" fill="currentColor"/></svg>
 </button>
 
 <!-- 开始界面 -->
 <div id="title-screen" class="screen">
-  <canvas id="title-bg"></canvas>
-  <div class="screen-content">
-    <div class="eyebrow">WOWAYOU · 割草生存</div>
-    <h1>NEON<span>SURVIVORS</span></h1>
-    <p class="subtitle">霓虹幸存者</p>
-    <p class="desc">在无尽霓虹废墟中生存。<br>移动躲避，武器自动开火，升级选技能，活到最后。</p>
-    <button id="start-btn" class="big-btn">开始生存</button>
-    <div class="tips">
-      <span>WASD / 方向键 / 触屏摇杆 移动</span>
-      <span>武器自动攻击 · M 静音 · P 暂停</span>
+  <div class="title-content">
+    <div class="tagline">// WOWAYOU.SYS — SURVIVAL.EXE</div>
+    <h1>NEON<br><span class="stroke">SURVIVORS</span></h1>
+    <div class="divider"></div>
+    <p class="desc">废墟深处，信号未死。<br>移动求生，武器自射，升级择路，活到最后。</p>
+    <button id="start-btn" class="hard-btn">▸ EXECUTE</button>
+    <div class="hints">
+      <span>[WASD]/[←↑↓→] 移动</span>
+      <span>[1][2][3] 选升级</span>
+      <span>[P] 暂停 [M] 静音</span>
     </div>
-    <div class="best" id="best-time">最佳生存：尚未记录</div>
+    <div class="best" id="best-time">>> 无存档记录</div>
   </div>
 </div>
 
-<!-- 升级悬浮卡片条（不暂停游戏） -->
+<!-- 升级悬浮卡片条 -->
 <div id="upgrade-bar" class="hidden">
-  <div class="upgrade-hint">升级！按 1 / 2 / 3 或点击选择 · 游戏继续</div>
+  <div class="upgrade-hint">▸ LEVEL UP — PRESS [1] [2] [3] OR CLICK</div>
   <div id="upgrade-cards" class="cards-bar"></div>
 </div>
 
 <!-- 暂停界面 -->
 <div id="pause-screen" class="screen hidden">
-  <div class="screen-content">
-    <h2>暂停</h2>
-    <button id="resume-btn" class="big-btn">继续</button>
-    <button id="restart-btn" class="big-btn ghost">重新开始</button>
+  <div class="screen-box">
+    <h2>// PAUSED</h2>
+    <button id="resume-btn" class="hard-btn">▸ RESUME</button>
+    <button id="restart-btn" class="hard-btn outline">▸ RESTART</button>
   </div>
 </div>
 
 <!-- 结束界面 -->
 <div id="end-screen" class="screen hidden">
-  <div class="screen-content">
-    <h2 id="end-title">你倒下了</h2>
+  <div class="screen-box">
+    <h2 id="end-title">SIGNAL LOST</h2>
     <div class="end-stats" id="end-stats"></div>
-    <button id="end-restart-btn" class="big-btn">再来一局</button>
-    <button id="end-share-btn" class="big-btn ghost">分享战绩</button>
+    <button id="end-restart-btn" class="hard-btn">▸ RETRY</button>
+    <button id="end-share-btn" class="hard-btn outline">▸ BROADCAST</button>
   </div>
 </div>
 
-<!-- 操控区：桌面 WASD 键盘可视化 / 移动端虚拟摇杆 -->
+<!-- 操控区 -->
 <div id="controls" class="hidden">
-  <!-- 桌面 WASD 键盘可视化 -->
-  <div id="keypad" class="keypad">
+  <div class="keypad">
     <div class="key key-w" data-key="w">W</div>
     <div class="key key-a" data-key="a">A</div>
     <div class="key key-s" data-key="s">S</div>
     <div class="key key-d" data-key="d">D</div>
   </div>
-  <!-- 移动端虚拟摇杆 -->
   <div id="joystick">
     <div id="joystick-base"><div id="joystick-stick"></div></div>
   </div>

@@ -17,8 +17,8 @@ const joyBase = $('joystick-base'), joyStick = $('joystick-stick');
 const controlsEl = $('controls'), offscreenInd = $('offscreen-indicators');
 const vignetteHurt = $('vignette-hurt'), vignetteLowhp = $('vignette-lowhp');
 const keypad = document.querySelector('.keypad');
-const keyEls = { w: $('keypad')?.querySelector('.key-w'), a: $('keypad')?.querySelector('.key-a'),
-  s: $('keypad')?.querySelector('.key-s'), d: $('keypad')?.querySelector('.key-d') };
+const keyEls = { w: keypad?.querySelector('.key-w'), a: keypad?.querySelector('.key-a'),
+  s: keypad?.querySelector('.key-s'), d: keypad?.querySelector('.key-d') };
 
 /* 触屏检测：给 body 加 class 切换摇杆/键盘 */
 if (isTouchDeviceCheck()) document.body.classList.add('touch');
@@ -193,7 +193,7 @@ const Audio = (() => {
  */
 const WEAPONS = [
   {
-    id: 'pulse', name: '脉冲弹', rarity: '普通', color: '#00f0ff',
+    id: 'pulse', name: '脉冲弹', rarity: '普通', color: '#e8a317',
     maxLevel: 6,
     desc: lv => `追踪最近敌人发射 ${1 + Math.floor(lv / 2)} 发脉冲弹`,
     fire(p, lv, S) {
@@ -203,14 +203,14 @@ const WEAPONS = [
       for (let i = 0; i < n; i++) {
         const ang = base + (i - (n - 1) / 2) * 0.18;
         S.spawn({ x: p.x, y: p.y, vx: Math.cos(ang) * 420, vy: Math.sin(ang) * 420,
-          r: 6 + lv, dmg: 8 + lv * 3, life: 1.1, color: '#00f0ff', type: 'pulse' });
+          r: 6 + lv, dmg: 8 + lv * 3, life: 1.1, color: '#e8a317', type: 'pulse' });
       }
       Audio.shoot();
     },
     cooldown: lv => 0.42 - lv * 0.03,
   },
   {
-    id: 'orbit', name: '轨道光刃', rarity: '普通', color: '#b14dff',
+    id: 'orbit', name: '轨道光刃', rarity: '普通', color: '#7a9a2e',
     maxLevel: 6,
     desc: lv => `${1 + lv}把光刃环绕飞行`,
     fire(p, lv, S) {
@@ -222,7 +222,7 @@ const WEAPONS = [
     persistent: true,
   },
   {
-    id: 'spread', name: '散射爆', rarity: '稀有', color: '#00f0ff',
+    id: 'spread', name: '散射爆', rarity: '稀有', color: '#e8a317',
     maxLevel: 5,
     desc: lv => `朝最近敌人扇形射出 ${3 + lv} 发`,
     fire(p, lv, S) {
@@ -233,14 +233,14 @@ const WEAPONS = [
       for (let i = 0; i < n; i++) {
         const ang = base + (i - (n - 1) / 2) * (spread / n);
         S.spawn({ x: p.x, y: p.y, vx: Math.cos(ang) * 360, vy: Math.sin(ang) * 360,
-          r: 5 + lv, dmg: 6 + lv * 2, life: 0.9, color: '#00e0ff', type: 'spread' });
+          r: 5 + lv, dmg: 6 + lv * 2, life: 0.9, color: '#e8a317', type: 'spread' });
       }
       Audio.laser();
     },
     cooldown: lv => 0.75 - lv * 0.05,
   },
   {
-    id: 'laser', name: '聚焦射线', rarity: '史诗', color: '#ffb800',
+    id: 'laser', name: '聚焦射线', rarity: '史诗', color: '#e8a317',
     maxLevel: 5,
     desc: lv => `持续灼烧最近敌人，每秒 ${(10 + lv * 6)} 伤害`,
     fire(p, lv, S) {
@@ -254,17 +254,17 @@ const WEAPONS = [
     persistent: true,
   },
   {
-    id: 'mine', name: '感应雷', rarity: '稀有', color: '#00f0ff',
+    id: 'mine', name: '感应雷', rarity: '稀有', color: '#e8a317',
     maxLevel: 5,
     desc: lv => `每隔片刻在脚下埋雷，引爆 ${40 + lv * 20} 范围伤害`,
     fire(p, lv, S) {
       S.spawn({ x: p.x + rand(-20, 20), y: p.y + rand(-20, 20), vx: 0, vy: 0,
-        r: 10, dmg: 0, life: 4, color: '#00f0ff', type: 'mine', mineR: 40 + lv * 20, mineDmg: 30 + lv * 15, armed: 0.4 });
+        r: 10, dmg: 0, life: 4, color: '#e8a317', type: 'mine', mineR: 40 + lv * 20, mineDmg: 30 + lv * 15, armed: 0.4 });
     },
     cooldown: lv => 1.6 - lv * 0.12,
   },
   {
-    id: 'boomerang', name: '回旋刃', rarity: '史诗', color: '#b14dff',
+    id: 'boomerang', name: '回旋刃', rarity: '史诗', color: '#7a9a2e',
     maxLevel: 5,
     desc: lv => `掷出 ${1 + (lv >= 3 ? 1 : 0)} 把回旋刃，穿透敌人`,
     fire(p, lv, S) {
@@ -273,7 +273,7 @@ const WEAPONS = [
       for (let i = 0; i < n; i++) {
         const ang = base + (i - (n - 1) / 2) * 0.5;
         S.spawn({ x: p.x, y: p.y, vx: Math.cos(ang) * 260, vy: Math.sin(ang) * 260,
-          r: 9 + lv, dmg: 12 + lv * 5, life: 1.8, color: '#b14dff', type: 'boom',
+          r: 9 + lv, dmg: 12 + lv * 5, life: 1.8, color: '#7a9a2e', type: 'boom',
           px: p.x, py: p.y, t: 0, hitSet: new Set() });
       }
       Audio.laser();
@@ -286,35 +286,35 @@ const WEAPON_MAP = Object.fromEntries(WEAPONS.map(w => [w.id, w]));
 
 /* ---- Passive upgrades ---- */
 const PASSIVES = [
-  { id: 'speed', name: '疾步', rarity: '普通', color: '#00f0ff', maxLevel: 5,
+  { id: 'speed', name: '疾步', rarity: '普通', color: '#e8a317', maxLevel: 5,
     desc: lv => `移动速度 +${lv * 12}%`, apply: (p, lv) => { p.spdMul = 1 + lv * 0.12; } },
-  { id: 'hp', name: '强化外壳', rarity: '普通', color: '#00f0ff', maxLevel: 5,
+  { id: 'hp', name: '强化外壳', rarity: '普通', color: '#e8a317', maxLevel: 5,
     desc: lv => `最大生命 +${lv * 25}，并回满`, apply: (p, lv) => { p.maxHp = 100 + lv * 25; p.hp = p.maxHp; } },
-  { id: 'dmg', name: '攻击强化', rarity: '普通', color: '#00f0ff', maxLevel: 5,
+  { id: 'dmg', name: '攻击强化', rarity: '普通', color: '#e8a317', maxLevel: 5,
     desc: lv => `全武器伤害 +${lv * 15}%`, apply: (p, lv) => { p.dmgMul = 1 + lv * 0.15; } },
-  { id: 'cd', name: '冷却缩减', rarity: '稀有', color: '#b14dff', maxLevel: 5,
+  { id: 'cd', name: '冷却缩减', rarity: '稀有', color: '#7a9a2e', maxLevel: 5,
     desc: lv => `武器冷却 -${lv * 8}%`, apply: (p, lv) => { p.cdMul = 1 - lv * 0.08; } },
-  { id: 'pickup', name: '磁吸场', rarity: '稀有', color: '#b14dff', maxLevel: 3,
+  { id: 'pickup', name: '磁吸场', rarity: '稀有', color: '#7a9a2e', maxLevel: 3,
     desc: lv => `拾取范围 +${lv * 60}%`, apply: (p, lv) => { p.pickupR = 60 * (1 + lv * 0.6); } },
-  { id: 'regen', name: '纳米修复', rarity: '史诗', color: '#ffb800', maxLevel: 3,
+  { id: 'regen', name: '纳米修复', rarity: '史诗', color: '#e8a317', maxLevel: 3,
     desc: lv => `每秒恢复 ${lv * 1.5} 生命`, apply: (p, lv) => { p.regen = lv * 1.5; } },
-  { id: 'pierce', name: '穿透弹头', rarity: '稀有', color: '#b14dff', maxLevel: 2,
+  { id: 'pierce', name: '穿透弹头', rarity: '稀有', color: '#7a9a2e', maxLevel: 2,
     desc: lv => `弹道穿透 +${lv} 个敌人`, apply: (p, lv) => { p.pierce = lv; } },
-  { id: 'magnet', name: '金币磁铁', rarity: '普通', color: '#ffb800', maxLevel: 3,
+  { id: 'magnet', name: '金币磁铁', rarity: '普通', color: '#e8a317', maxLevel: 3,
     desc: lv => `金币吸引 +${lv * 100}%`, apply: (p, lv) => { p.goldMul = 1 + lv; } },
 ];
 const PASSIVE_MAP = Object.fromEntries(PASSIVES.map(p => [p.id, p]));
 
 /* ---- Enemy types ----
- * 敌人统一洋红系（#ff2d6f 系列），与友方青色系形成最强对比。
+ * 敌人统一洋红系（#c8341a 系列），与友方青色系形成最强对比。
  * 子类型用形状 + 亮度区分，不仅靠色相。 */
 const ENEMY_TYPES = {
-  drone:   { hp: 12, r: 11, spd: 52, dmg: 8, xp: 3, gold: 1, color: '#ff2d6f', shape: 'tri', light: false },
-  runner:  { hp: 8,  r: 8,  spd: 95, dmg: 6, xp: 4, gold: 1, color: '#ff7da0', shape: 'tri', light: true },
-  tank:    { hp: 55, r: 16, spd: 32, dmg: 14, xp: 10, gold: 3, color: '#c01050', shape: 'square', light: false },
-  swarm:   { hp: 5,  r: 6,  spd: 70, dmg: 4, xp: 2, gold: 1, color: '#ff5c8a', shape: 'tri', light: true },
-  shooter: { hp: 18, r: 12, spd: 38, dmg: 10, xp: 8, gold: 2, color: '#ff2d6f', shape: 'diamond', ranged: true },
-  brute: { hp: 200, r: 24, spd: 26, dmg: 22, xp: 30, gold: 10, color: '#ff0044', shape: 'square', boss: true },
+  drone:   { hp: 12, r: 11, spd: 52, dmg: 8, xp: 3, gold: 1, color: '#c8341a', shape: 'tri' },
+  runner:  { hp: 8,  r: 8,  spd: 95, dmg: 6, xp: 4, gold: 1, color: '#e85a2e', shape: 'tri' },
+  tank:    { hp: 55, r: 16, spd: 32, dmg: 14, xp: 10, gold: 3, color: '#8a1a0a', shape: 'square' },
+  swarm:   { hp: 5,  r: 6,  spd: 70, dmg: 4, xp: 2, gold: 1, color: '#e84020', shape: 'tri' },
+  shooter: { hp: 18, r: 12, spd: 38, dmg: 10, xp: 8, gold: 2, color: '#c8341a', shape: 'diamond', ranged: true },
+  brute:   { hp: 200, r: 24, spd: 26, dmg: 22, xp: 30, gold: 10, color: '#ff2200', shape: 'square', boss: true },
 };
 
 /* ============================================================
@@ -407,7 +407,7 @@ function spawnBoss() {
   G.enemies[G.enemies.length - 1].hp *= (1 + G.time * 0.008);
   G.enemies[G.enemies.length - 1].maxHp = G.enemies[G.enemies.length - 1].hp;
   Audio.boss();
-  spawnFloatText(x, y, 'BOSS!', '#ff2d6f', 24);
+  spawnFloatText(x, y, 'BOSS!', '#c8341a', 24);
   G.flash = 0.5;
 }
 
@@ -441,7 +441,7 @@ function damageEnemy(e, dmg, srcX, srcY) {
     spawnParticles(e.x, e.y, e.color, e.boss ? 30 : 12, e.boss ? 200 : 120, e.boss ? 0.8 : 0.5);
     spawnPickup(e.x, e.y, 'xp', e.xp);
     if (e.gold > 0) spawnPickup(e.x, e.y, 'gold', e.gold);
-    if (e.boss) { Audio.explode(); G.shake = 0.5; G.flash = 0.3; spawnFloatText(e.x, e.y, '+' + e.xp + ' XP', '#b14dff', 18); }
+    if (e.boss) { Audio.explode(); G.shake = 0.5; G.flash = 0.3; spawnFloatText(e.x, e.y, '+' + e.xp + ' XP', '#7a9a2e', 18); }
     else Audio.hit();
   }
 }
@@ -534,7 +534,7 @@ function updateEnemies(dt) {
       if (e.shootTimer <= 0 && d < 450) {
         e.shootTimer = rand(1.5, 3);
         G.projectiles.push({ x: e.x, y: e.y, vx: (dx / d) * 150, vy: (dy / d) * 150,
-          r: 6, dmg: e.dmg * 0.6, life: 3, color: '#ff2d6f', type: 'enemy', hostile: true });
+          r: 6, dmg: e.dmg * 0.6, life: 3, color: '#c8341a', type: 'enemy', hostile: true });
       }
     }
 
@@ -546,7 +546,7 @@ function updateEnemies(dt) {
         G.shake = 0.3;
         G.flash = 0.2;
         Audio.hurt();
-        spawnFloatText(p.x, p.y - 20, '-' + Math.round(e.dmg), '#ff2d6f', 14);
+        spawnFloatText(p.x, p.y - 20, '-' + Math.round(e.dmg), '#c8341a', 14);
         if (p.hp <= 0) { p.hp = 0; gameOver(); }
       }
     }
@@ -594,7 +594,7 @@ function updateProjectiles(dt) {
               damageEnemy(e, pr.mineDmg * p.dmgMul, pr.x, pr.y);
             }
           }
-          spawnParticles(pr.x, pr.y, '#62ecd5', 20, 180, 0.5);
+          spawnParticles(pr.x, pr.y, '#e8a317', 20, 180, 0.5);
           Audio.explode();
           G.shake = 0.2;
         }
@@ -652,7 +652,7 @@ function updatePickups(dt) {
     if (d2 < (p.r + pk.r + 4) ** 2) {
       pk.dead = true;
       if (pk.kind === 'xp') { gainXP(pk.value); }
-      else { G.gold += pk.value * p.goldMul | 0; spawnFloatText(pk.x, pk.y, '+' + (pk.value * p.goldMul | 0), '#ffb800', 11); }
+      else { G.gold += pk.value * p.goldMul | 0; spawnFloatText(pk.x, pk.y, '+' + (pk.value * p.goldMul | 0), '#e8a317', 11); }
       Audio.pickup();
     }
   }
@@ -758,7 +758,7 @@ function offerUpgrades() {
 }
 
 function rarityColor(r) {
-  return r === '史诗' ? '#ffb800' : r === '稀有' ? '#b14dff' : '#5a7aa8';
+  return r === '史诗' ? '#e8a317' : r === '稀有' ? '#7a9a2e' : '#4a4038';
 }
 
 function chooseUpgrade(idx) {
@@ -812,7 +812,7 @@ function passiveIcon(id, c) {
   return icons[id] || icons.dmg;
 }
 function healIcon() {
-  return `<svg viewBox="0 0 40 40"><path d="M20 34 L8 20 Q4 14 8 10 Q12 6 16 10 L20 14 L24 10 Q28 6 32 10 Q36 14 32 20 Z" fill="#00f0ff"/><rect x="18" y="14" width="4" height="12" fill="#fff"/><rect x="13" y="18" width="14" height="4" fill="#fff"/></svg>`;
+  return `<svg viewBox="0 0 40 40"><path d="M20 34 L8 20 Q4 14 8 10 Q12 6 16 10 L20 14 L24 10 Q28 6 32 10 Q36 14 32 20 Z" fill="#e8a317"/><rect x="18" y="14" width="4" height="12" fill="#fff"/><rect x="13" y="18" width="14" height="4" fill="#fff"/></svg>`;
 }
 
 /* ============================================================
@@ -894,7 +894,7 @@ function shareResult() {
     navigator.share({ title: '霓虹幸存者', text, url: 'https://wowayou.github.io/games/neon-survivors/' }).catch(() => {});
   } else {
     navigator.clipboard?.writeText(text).then(() => {
-      spawnFloatText(W / 2, H / 2, '已复制到剪贴板', '#00f0ff', 16);
+      spawnFloatText(W / 2, H / 2, '已复制到剪贴板', '#e8a317', 16);
     }).catch(() => {});
   }
 }
@@ -933,7 +933,6 @@ function update(dt) {
   $('hud-kills').textContent = G.kills;
   $('hud-gold').textContent = G.gold;
   $('hud-xp').style.width = (G.xp / G.xpNeed * 100) + '%';
-  $('xp-lvl-badge').textContent = 'Lv ' + G.level;
 
   // vignette 反馈
   // 受击边缘脉冲
@@ -984,7 +983,7 @@ function updateOffscreenIndicators() {
     const rot = ang * 180 / Math.PI;
     const size = e.boss ? 32 : 22;
     html += `<div class="${cls}" style="left:${ix}px;top:${iy}px;transform:translate(-50%,-50%) rotate(${rot}deg)">
-      <svg viewBox="0 0 24 24" width="${size}" height="${size}"><path d="M4 12 L18 12 M12 6 L18 12 L12 18" stroke="${e.boss ? '#ff0044' : '#ff2d6f'}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+      <svg viewBox="0 0 24 24" width="${size}" height="${size}"><path d="M4 12 L18 12 M12 6 L18 12 L12 18" stroke="${e.boss ? '#ff2200' : '#c8341a'}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
   }
   offscreenInd.innerHTML = html;
 }
@@ -995,7 +994,7 @@ function updateOffscreenIndicators() {
 function render() {
   // background: deep dark
   ctx.save();
-  ctx.fillStyle = '#06060e';
+  ctx.fillStyle = '#0a0908';
   ctx.fillRect(0, 0, W, H);
 
   // screen shake
@@ -1012,44 +1011,34 @@ function render() {
   // world grid
   renderGrid(cam);
 
-  // pickups：经验=紫色钻石形，金币=金色圆形+描边（三重信号区分）
+  // pickups：经验=毒绿钻石形，金币=琥珀方块（硬边几何，无发光）
   for (const pk of G.pickups) {
     const alpha = pk.life < 3 ? pk.life / 3 : 1;
     ctx.globalAlpha = alpha;
     if (pk.kind === 'xp') {
-      // 紫色钻石形 + 中心亮点
+      // 毒绿钻石形 + 骨白中心
       ctx.save();
       ctx.translate(pk.x, pk.y);
       ctx.rotate(Math.PI / 4);
-      ctx.fillStyle = '#b14dff';
-      ctx.shadowColor = '#b14dff'; ctx.shadowBlur = 6;
+      ctx.fillStyle = '#7a9a2e';
       ctx.fillRect(-pk.r, -pk.r, pk.r * 2, pk.r * 2);
-      ctx.shadowBlur = 0;
-      // 中心亮点
-      ctx.fillStyle = '#e0c0ff';
+      ctx.strokeStyle = '#0a0908';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-pk.r, -pk.r, pk.r * 2, pk.r * 2);
+      ctx.fillStyle = '#d4c8a8';
       ctx.fillRect(-pk.r * 0.4, -pk.r * 0.4, pk.r * 0.8, pk.r * 0.8);
       ctx.restore();
     } else {
-      // 金币：金色圆形 + 深色描边 + 内嵌简化符号
-      ctx.fillStyle = '#ffb800';
-      ctx.shadowColor = '#ffb800'; ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.arc(pk.x, pk.y, pk.r, 0, TAU);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      // 描边（保证任何背景可读）
-      ctx.strokeStyle = '#664400';
+      // 金币：琥珀方块 + 深描边（硬边，非圆形）
+      ctx.save();
+      ctx.translate(pk.x, pk.y);
+      ctx.rotate(G.time * 2);
+      ctx.fillStyle = '#e8a317';
+      ctx.fillRect(-pk.r, -pk.r, pk.r * 2, pk.r * 2);
+      ctx.strokeStyle = '#0a0908';
       ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.arc(pk.x, pk.y, pk.r, 0, TAU);
-      ctx.stroke();
-      // 内嵌 $ 符号（简化为中心竖线+弧）
-      ctx.strokeStyle = '#664400';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(pk.x, pk.y - pk.r * 0.5);
-      ctx.lineTo(pk.x, pk.y + pk.r * 0.5);
-      ctx.stroke();
+      ctx.strokeRect(-pk.r, -pk.r, pk.r * 2, pk.r * 2);
+      ctx.restore();
     }
   }
   ctx.globalAlpha = 1;
@@ -1059,130 +1048,123 @@ function render() {
     drawEnemy(e);
   }
 
-  // projectiles
+  // projectiles（全部硬边几何，无发光）
   for (const pr of G.projectiles) {
     if (pr.hostile) {
-      // 敌人弹：洋红菱形 + 白描边（与金币圆形/经验紫色钻石完全区分）
+      // 敌人弹：锈红尖刺十字（与方块金币/钻石经验完全区分）
       ctx.save();
       ctx.translate(pr.x, pr.y);
-      ctx.rotate(Math.PI / 4);
-      ctx.fillStyle = '#ff2d6f';
-      ctx.shadowColor = '#ff2d6f'; ctx.shadowBlur = 8;
-      ctx.fillRect(-pr.r, -pr.r, pr.r * 2, pr.r * 2);
-      ctx.shadowBlur = 0;
-      // 白描边
-      ctx.strokeStyle = '#ffffff';
+      ctx.rotate(G.time * 8);
+      ctx.fillStyle = '#c8341a';
+      ctx.beginPath();
+      ctx.moveTo(0, -pr.r * 1.4); ctx.lineTo(pr.r * 0.4, 0);
+      ctx.lineTo(0, pr.r * 1.4); ctx.lineTo(-pr.r * 0.4, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#d4c8a8';
       ctx.lineWidth = 1;
-      ctx.strokeRect(-pr.r, -pr.r, pr.r * 2, pr.r * 2);
+      ctx.stroke();
       ctx.restore();
       continue;
     }
     if (pr.type === 'mine') {
       const blink = pr.armed > 0 ? (Math.sin(G.time * 20) > 0 ? 1 : 0.3) : 1;
       ctx.globalAlpha = blink;
-      // 友方感应雷：青色圆形 + 描边
+      // 感应雷：琥珀方块 + 十字标记
       ctx.fillStyle = pr.color;
-      ctx.shadowColor = pr.color; ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.arc(pr.x, pr.y, pr.r, 0, TAU);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = '#003344';
+      ctx.fillRect(pr.x - pr.r, pr.y - pr.r, pr.r * 2, pr.r * 2);
+      ctx.strokeStyle = '#0a0908';
       ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(pr.x, pr.y, pr.r, 0, TAU);
-      ctx.stroke();
-      // 引爆范围环
+      ctx.strokeRect(pr.x - pr.r, pr.y - pr.r, pr.r * 2, pr.r * 2);
+      // 引爆范围框
       ctx.strokeStyle = pr.color;
-      ctx.globalAlpha = blink * 0.3;
+      ctx.globalAlpha = blink * 0.25;
       ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(pr.x, pr.y, pr.mineR, 0, TAU);
-      ctx.stroke();
+      ctx.strokeRect(pr.x - pr.mineR, pr.y - pr.mineR, pr.mineR * 2, pr.mineR * 2);
       ctx.globalAlpha = 1;
     } else if (pr.type === 'spread') {
-      // 散射弹：青色小三角
+      // 散射弹：琥珀三角
       ctx.save();
       ctx.translate(pr.x, pr.y);
       const ang = Math.atan2(pr.vy, pr.vx);
       ctx.rotate(ang);
       ctx.fillStyle = pr.color;
-      ctx.shadowColor = pr.color; ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.moveTo(pr.r, 0);
       ctx.lineTo(-pr.r * 0.7, pr.r * 0.7);
       ctx.lineTo(-pr.r * 0.7, -pr.r * 0.7);
       ctx.closePath();
       ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = '#003344';
+      ctx.strokeStyle = '#0a0908';
       ctx.lineWidth = 0.8;
       ctx.stroke();
       ctx.restore();
     } else if (pr.type === 'boom') {
-      // 回旋刃：紫色叶片形
+      // 回旋刃：毒绿尖刃（X形）
       ctx.save();
       ctx.translate(pr.x, pr.y);
       ctx.rotate(G.time * 10);
       ctx.fillStyle = pr.color;
-      ctx.shadowColor = pr.color; ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.moveTo(0, -pr.r); ctx.lineTo(pr.r * 0.5, 0); ctx.lineTo(0, pr.r); ctx.lineTo(-pr.r * 0.5, 0);
       ctx.closePath();
       ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = '#ffffff44';
+      ctx.beginPath();
+      ctx.moveTo(-pr.r, 0); ctx.lineTo(0, pr.r * 0.5); ctx.lineTo(pr.r, 0); ctx.lineTo(0, -pr.r * 0.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#0a0908';
       ctx.lineWidth = 0.8;
       ctx.stroke();
       ctx.restore();
     } else {
-      // 脉冲弹：青色圆形 + 描边 + 发光
+      // 脉冲弹：琥珀方块 + 描边（硬边，无发光）
       ctx.fillStyle = pr.color;
-      ctx.shadowColor = pr.color; ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.arc(pr.x, pr.y, pr.r, 0, TAU);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = '#003344';
+      ctx.fillRect(pr.x - pr.r, pr.y - pr.r, pr.r * 2, pr.r * 2);
+      ctx.strokeStyle = '#0a0908';
       ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(pr.x, pr.y, pr.r, 0, TAU);
-      ctx.stroke();
+      ctx.strokeRect(pr.x - pr.r, pr.y - pr.r, pr.r * 2, pr.r * 2);
     }
   }
 
-  // laser beam（聚焦射线：金色光束）
+  // laser beam（聚焦射线：琥珀硬线 + 磷光，仅此一处保留轻微发光）
   const p = G.player;
   if (p && p.laserActive && p.laserTarget && !p.laserTarget.dead) {
-    ctx.strokeStyle = '#ffb800';
-    ctx.lineWidth = 3 + Math.sin(G.time * 30) * 1;
-    ctx.shadowColor = '#ffb800'; ctx.shadowBlur = 12;
-    ctx.globalAlpha = 0.85;
+    ctx.strokeStyle = '#e8a317';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = '#e8a317'; ctx.shadowBlur = 6;
+    ctx.globalAlpha = 0.9;
     ctx.beginPath();
     ctx.moveTo(p.x, p.y);
     ctx.lineTo(p.laserTarget.x, p.laserTarget.y);
     ctx.stroke();
-    ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+    // 核心亮线
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#d4c8a8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
 
   // player
   if (p) drawPlayer(p);
 
-  // orbit weapons（轨道光刃：紫色叶片）
+  // orbit weapons（轨道光刃：毒绿尖刃，无发光）
   if (p && p.orbitCount > 0) {
     for (let i = 0; i < p.orbitCount; i++) {
       const a = p.orbitAngle + (i / p.orbitCount) * TAU;
       const ox = p.x + Math.cos(a) * p.orbitR, oy = p.y + Math.sin(a) * p.orbitR;
-      ctx.fillStyle = '#b14dff';
-      ctx.shadowColor = '#b14dff'; ctx.shadowBlur = 10;
+      ctx.fillStyle = '#7a9a2e';
       ctx.save();
       ctx.translate(ox, oy);
       ctx.rotate(a + Math.PI / 2);
       ctx.beginPath();
       ctx.moveTo(0, -8); ctx.lineTo(4, 6); ctx.lineTo(-4, 6); ctx.closePath();
       ctx.fill();
+      ctx.strokeStyle = '#0a0908';
+      ctx.lineWidth = 1;
+      ctx.stroke();
       ctx.restore();
-      ctx.shadowBlur = 0;
     }
   }
 
@@ -1210,7 +1192,7 @@ function render() {
 
   // flash overlay（轻微全屏闪，主反馈由 vignette-hurt 边缘脉冲处理）
   if (G.flash > 0) {
-    ctx.fillStyle = `rgba(255,45,111,${G.flash * 0.15})`;
+    ctx.fillStyle = `rgba(200,52,26,${G.flash * 0.12})`;
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -1227,7 +1209,8 @@ function renderGrid(cam) {
   const x0 = Math.floor(cam.x / grid) * grid;
   const y0 = Math.floor(cam.y / grid) * grid;
   const cols = Math.ceil(W / grid) + 2, rows = Math.ceil(H / grid) + 2;
-  ctx.strokeStyle = '#00f0ff10';
+  // 细网格线
+  ctx.strokeStyle = '#e8a3170a';
   ctx.lineWidth = 1;
   ctx.beginPath();
   for (let i = 0; i <= cols; i++) {
@@ -1239,39 +1222,48 @@ function renderGrid(cam) {
     ctx.moveTo(cam.x, y); ctx.lineTo(cam.x + cols * grid, y);
   }
   ctx.stroke();
+  // 交叉点十字标记（工业雷达风）
+  ctx.strokeStyle = '#e8a31718';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i <= cols; i++) {
+    for (let j = 0; j <= rows; j++) {
+      const x = x0 + i * grid, y = y0 + j * grid;
+      ctx.moveTo(x - 3, y); ctx.lineTo(x + 3, y);
+      ctx.moveTo(x, y - 3); ctx.lineTo(x, y + 3);
+    }
+  }
+  ctx.stroke();
 }
 
-// starfield + neon particles for title
+// 废土尘埃 + CRT 扫描线 for title
 let stars = [];
 let titleParticles = [];
 function renderStars() {
   if (stars.length === 0) {
-    for (let i = 0; i < 140; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.5, s: Math.random() * 0.3 + 0.1, c: Math.random() > 0.7 ? '#ff2d6f' : '#00f0ff' });
-    for (let i = 0; i < 25; i++) titleParticles.push({ x: Math.random() * W, y: Math.random() * H, vx: rand(-15, 15), vy: rand(-15, 15), r: rand(1, 3), life: rand(0, 3), c: pick(['#00f0ff', '#b14dff', '#ff2d6f']) });
+    for (let i = 0; i < 100; i++) stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() < 0.5 ? 1 : 2, s: Math.random() * 0.4 + 0.05, c: Math.random() > 0.8 ? '#c8341a' : '#e8a317' });
+    for (let i = 0; i < 20; i++) titleParticles.push({ x: Math.random() * W, y: Math.random() * H, vx: rand(-8, 8), vy: rand(-8, 8), r: rand(1, 2), life: rand(0, 3), c: pick(['#e8a317', '#7a9a2e', '#c8341a']) });
   }
-  ctx.fillStyle = '#06060e';
+  ctx.fillStyle = '#0a0908';
   ctx.fillRect(0, 0, W, H);
-  // 飘动星星
+  // 飘动尘埃（硬边方块，无发光）
   for (const st of stars) {
     st.y += st.s; if (st.y > H) { st.y = 0; st.x = Math.random() * W; }
-    ctx.globalAlpha = 0.35 + Math.sin(G.time * 2 + st.x) * 0.3;
+    ctx.globalAlpha = 0.3 + Math.sin(G.time * 2 + st.x) * 0.25;
     ctx.fillStyle = st.c;
     ctx.fillRect(st.x, st.y, st.r, st.r);
   }
-  // 霓虹粒子
+  // 漂浮粒子（硬边，无发光）
   for (const pt of titleParticles) {
     pt.x += pt.vx * 0.016; pt.y += pt.vy * 0.016;
     pt.life += 0.016;
     if (pt.life > 3 || pt.x < 0 || pt.x > W || pt.y < 0 || pt.y > H) {
       pt.x = Math.random() * W; pt.y = Math.random() * H;
-      pt.life = 0; pt.c = pick(['#00f0ff', '#b14dff', '#ff2d6f']);
+      pt.life = 0; pt.c = pick(['#e8a317', '#7a9a2e', '#c8341a']);
     }
-    ctx.globalAlpha = (1 - pt.life / 3) * 0.6;
+    ctx.globalAlpha = (1 - pt.life / 3) * 0.5;
     ctx.fillStyle = pt.c;
-    ctx.shadowColor = pt.c; ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.arc(pt.x, pt.y, pt.r, 0, TAU);
-    ctx.fill();
+    ctx.fillRect(pt.x, pt.y, pt.r, pt.r);
   }
   ctx.shadowBlur = 0;
   ctx.globalAlpha = 1;
@@ -1281,20 +1273,15 @@ function drawEnemy(e) {
   ctx.save();
   ctx.translate(e.x, e.y);
   const flash = e.hitFlash > 0;
-  const col = flash ? '#ffffff' : e.color;
+  const col = flash ? '#d4c8a8' : e.color;
   ctx.fillStyle = col;
-  ctx.shadowColor = e.color; ctx.shadowBlur = e.boss ? 24 : 6;
 
-  // Boss 外环（红色脉冲圆环，最强危险信号）
+  // Boss 外框（硬边方块框，非圆环）
   if (e.boss) {
-    const pulse = 1 + Math.sin(G.time * 6) * 0.15;
-    ctx.strokeStyle = '#ff0044';
-    ctx.lineWidth = 3;
-    ctx.globalAlpha = 0.6;
-    ctx.beginPath();
-    ctx.arc(0, 0, e.r * 1.5 * pulse, 0, TAU);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+    const pulse = e.r * 1.6 + (Math.sin(G.time * 6) > 0 ? 4 : 0);
+    ctx.strokeStyle = '#ff2200';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(-pulse, -pulse, pulse * 2, pulse * 2);
   }
 
   ctx.beginPath();
@@ -1311,29 +1298,28 @@ function drawEnemy(e) {
     ctx.rect(-e.r, -e.r, e.r * 2, e.r * 2);
   }
   ctx.fill();
-  ctx.shadowBlur = 0;
 
-  // 深色描边（保证任何背景可读）
-  ctx.strokeStyle = '#1a0210';
+  // 深色描边（硬边，无发光）
+  ctx.strokeStyle = '#0a0908';
   ctx.lineWidth = e.boss ? 2.5 : 1.5;
   ctx.stroke();
 
-  // 受击白色描边
+  // 受击骨白描边
   if (flash) {
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = '#d4c8a8';
     ctx.lineWidth = 2;
     ctx.stroke();
   }
 
   ctx.restore();
 
-  // HP bar for tanks/bosses
+  // HP bar for tanks/bosses（硬边方块）
   if (e.boss || e.type === 'tank') {
-    const w = e.r * 2, h = 3;
+    const w = e.r * 2, h = 4;
     const ratio = e.hp / e.maxHp;
-    ctx.fillStyle = '#000a';
-    ctx.fillRect(e.x - w / 2, e.y - e.r - 10, w, h);
-    ctx.fillStyle = e.boss ? '#ff0044' : '#c01050';
+    ctx.fillStyle = '#0a0908';
+    ctx.fillRect(e.x - w / 2 - 1, e.y - e.r - 11, w + 2, h + 2);
+    ctx.fillStyle = e.boss ? '#ff2200' : '#8a1a0a';
     ctx.fillRect(e.x - w / 2, e.y - e.r - 10, w * ratio, h);
   }
 }
@@ -1344,9 +1330,9 @@ function drawPlayer(p) {
   if (p.invuln > 0 && Math.floor(G.time * 20) % 2 === 0) ctx.globalAlpha = 0.4;
   ctx.translate(p.x, p.y);
   ctx.rotate(p.facing);
-  // body: arrow/ship shape（青色 + 最强发光）
-  ctx.fillStyle = '#00f0ff';
-  ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 18;
+  // body: 箭头飞船（琥珀硬边 + 轻微磷光，CRT 终端风）
+  ctx.fillStyle = '#e8a317';
+  ctx.shadowColor = '#e8a317'; ctx.shadowBlur = 8;
   ctx.beginPath();
   ctx.moveTo(p.r, 0);
   ctx.lineTo(-p.r * 0.7, p.r * 0.7);
@@ -1356,22 +1342,20 @@ function drawPlayer(p) {
   ctx.fill();
   ctx.shadowBlur = 0;
   // 深色描边
-  ctx.strokeStyle = '#003344';
+  ctx.strokeStyle = '#0a0908';
   ctx.lineWidth = 1.5;
   ctx.stroke();
-  // core
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(0, 0, p.r * 0.3, 0, TAU);
-  ctx.fill();
+  // core（骨白方块）
+  ctx.fillStyle = '#d4c8a8';
+  ctx.fillRect(-p.r * 0.3, -p.r * 0.3, p.r * 0.6, p.r * 0.6);
   ctx.restore();
 
-  // HP bar above player
+  // HP bar above player（硬边方块）
   const w = 36, h = 4;
-  ctx.fillStyle = '#000a';
-  ctx.fillRect(p.x - w / 2, p.y - p.r - 12, w, h);
+  ctx.fillStyle = '#0a0908';
+  ctx.fillRect(p.x - w / 2 - 1, p.y - p.r - 13, w + 2, h + 2);
   const ratio = p.hp / p.maxHp;
-  ctx.fillStyle = ratio > 0.5 ? '#00f0ff' : ratio > 0.25 ? '#ffb800' : '#ff2d6f';
+  ctx.fillStyle = ratio > 0.5 ? '#e8a317' : ratio > 0.25 ? '#e8a317' : '#c8341a';
   ctx.fillRect(p.x - w / 2, p.y - p.r - 12, w * ratio, h);
 }
 
