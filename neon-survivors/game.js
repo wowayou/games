@@ -13,6 +13,7 @@ const hud = $('hud'), pauseBtn = $('pause-btn');
 const titleScreen = $('title-screen'), upgradeBar = $('upgrade-bar');
 const pauseScreen = $('pause-screen'), endScreen = $('end-screen');
 const upgradeCards = $('upgrade-cards');
+const continueBtn = $('continue-btn');
 const joyBase = $('joystick-base'), joyStick = $('joystick-stick');
 const controlsEl = $('controls'), offscreenInd = $('offscreen-indicators');
 const vignetteHurt = $('vignette-hurt'), vignetteLowhp = $('vignette-lowhp');
@@ -684,11 +685,23 @@ function gainXP(amt) {
     G.xpNeed = Math.floor(G.xpNeed * 1.35 + 2);
     upgradeQueue++;
   }
-  // 如果当前没有显示升级条，则显示队列中的下一组
-  if (upgradeQueue > 0 && !pendingUpgrades) {
-    upgradeQueue--;
-    offerUpgrades();
-  }
+  // 立即尝试弹出下一组升级；若当前已有升级条则由主循环轮询推进
+  tryAdvanceUpgradeQueue();
+}
+
+/* 升级队列推进：统一入口，避免分散的 setTimeout 造成时序死锁。
+ * - 只在 playing 且没有待选卡片时推进
+ * - 加 300ms 冷却避免连续弹卡糊脸
+ * - 死亡/暂停时不弹，但队列保留，恢复后自动续上 */
+let upgradeCooldown = 0;
+function tryAdvanceUpgradeQueue() {
+  if (pendingUpgrades) return;                 // 当前已有待选卡片，等玩家选
+  if (G.state !== 'playing') return;          // 非游戏中不弹（队列保留）
+  if (upgradeQueue <= 0) return;              // 队列空
+  if (upgradeCooldown > 0) return;           // 冷却中，等下一帧
+  upgradeQueue--;
+  upgradeCooldown = 0.3;
+  offerUpgrades();
 }
 
 /* ============================================================
@@ -779,11 +792,10 @@ function chooseUpgrade(idx) {
   pendingUpgrades = null;
   upgradeBar.classList.add('hidden');
   upgradeCards.innerHTML = '';
-  // 如果队列里还有待选升级，延迟一小段时间再显示下一组
-  if (upgradeQueue > 0) {
-    upgradeQueue--;
-    setTimeout(() => { if (G.state === 'playing' && upgradeQueue >= 0) offerUpgrades(); }, 300);
-  }
+  // 不再用 setTimeout 触发下一组升级（时序不可靠、状态已切换时会漏弹）
+  // 留给主循环 tryAdvanceUpgradeQueue 统一推进，确保弹出条件满足时一定能弹
+  // 选完升级是状态最干净的存档点（无待选卡片、无队列中间态），立即落盘
+  saveInProgressGame();
 }
 
 /* ---- weapon icons (inline SVG) ---- */
@@ -836,11 +848,22 @@ function startGame() {
   upgradeBar.classList.add('hidden');
   pendingUpgrades = null;
   upgradeQueue = 0;
+  upgradeCooldown = 0;
+  autosaveTick = 0;
   hud.classList.remove('hidden');
   pauseBtn.classList.remove('hidden');
   controlsEl.classList.remove('hidden');
   offscreenInd.classList.remove('hidden');
+  // 全新一局：清掉旧存档，避免死后回标题误按 CONTINUE 复活到旧进度
+  clearSave();
   spawnWave();
+}
+
+function continueGame() {
+  const snap = readSave();
+  if (!snap) { refreshContinueBtn(); return; }
+  Audio.init(); Audio.resume();
+  loadSaveAndStart(snap);
 }
 
 function togglePause() {
@@ -858,6 +881,8 @@ function gameOver() {
   G.state = 'dead';
   Audio.death();
   G.shake = 0.6; G.flash = 0.5;
+  // 死亡清存档，防止回标题后误按 CONTINUE 复活一局已死的进度
+  clearSave();
   const mins = Math.floor(G.time / 60), secs = Math.floor(G.time % 60);
   const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
   // best time in localStorage
@@ -885,6 +910,28 @@ function showBestTime() {
     const m = Math.floor(best / 60), s = Math.floor(best % 60);
     $('best-time').textContent = `最佳生存：${m}:${s.toString().padStart(2, '0')}`;
   }
+  // 同时刷新 CONTINUE 按钮可见性
+  refreshContinueBtn();
+}
+
+/* 暂停→保存并退出回标题。保存当前进度后回到 title 屏，下次可 CONTINUE。 */
+function saveAndExit() {
+  saveInProgressGame();
+  // 即便当前不在 playing（理论上暂停态调用），也尝试存一次
+  if (G.state === 'paused') {
+    const snap = collectSaveSnapshot();
+    if (snap) writeSave(snap);
+  }
+  G.state = 'title';
+  hud.classList.add('hidden');
+  pauseBtn.classList.add('hidden');
+  controlsEl.classList.add('hidden');
+  offscreenInd.classList.add('hidden');
+  upgradeBar.classList.add('hidden');
+  pauseScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  titleScreen.classList.remove('hidden');
+  refreshContinueBtn();
 }
 
 function shareResult() {
@@ -896,6 +943,163 @@ function shareResult() {
     navigator.clipboard?.writeText(text).then(() => {
       spawnFloatText(W / 2, H / 2, '已复制到剪贴板', '#e8a317', 16);
     }).catch(() => {});
+  }
+}
+
+/* ============================================================
+ * SAVE / LOAD —— 进度存档
+ * ------------------------------------------------------------
+ * 存档时机：
+ *   - 每次选完升级后（saveInProgressGame，状态干净）
+ *   - 主循环每 AUTOSAVE_INTERVAL 秒自动落盘一次
+ *   - 暂停→SAVE&EXIT 手动保存并回标题
+ *   - 窗口失焦（visibilitychange hidden）时保存
+ * 清除时机：
+ *   - 死亡（gameOver）
+ *   - 主动 RESTART / 重新开始
+ * 恢复入口：标题屏 CONTINUE 按钮（仅当存在有效存档时显示）
+ *
+ * 存档只保存"可复现的游戏状态"：等级/经验/金币/时间、玩家位置与
+ * 武器/被动等级、波次计数。运行时派生字段（orbitDmg/laserDmg 等）
+ * 由 applyPassivesAndWeapons 在恢复时按等级重算。敌人/弹幕不存，
+ * 恢复时重新刷一波，避免存档体积爆炸与"复活到怪物堆里"。
+ * ============================================================ */
+const SAVE_KEY = 'neon-survivors-save';
+const SAVE_VERSION = 1;
+const AUTOSAVE_INTERVAL = 5;  // 秒
+let autosaveTick = 0;
+
+/* 收集当前游戏状态为可序列化快照。只在 state==='playing' 且无待选
+ * 升级卡片时调用（保证快照点干净）。返回 null 表示无可存状态。 */
+function collectSaveSnapshot() {
+  if (G.state !== 'playing' && G.state !== 'paused') return null;
+  if (!G.player) return null;
+  // 有待选升级时不存档——避免恢复到"卡在选卡"状态
+  if (pendingUpgrades) return null;
+  const p = G.player;
+  return {
+    v: SAVE_VERSION,
+    savedAt: Date.now(),
+    time: G.time,
+    kills: G.kills,
+    gold: G.gold,
+    level: G.level,
+    xp: G.xp,
+    xpNeed: G.xpNeed,
+    waveNum: G.waveNum,
+    bossTimer: G.bossTimer,
+    spawnTimer: G.spawnTimer,
+    player: {
+      x: p.x, y: p.y, hp: p.hp, maxHp: p.maxHp,
+      weapons: { ...p.weapons },
+      passives: { ...(p.passives || {}) },
+    },
+  };
+}
+
+function writeSave(snap) {
+  if (!snap) return false;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(snap));
+    return true;
+  } catch (e) {
+    console.warn('[NS] 存档写入失败', e);
+    return false;
+  }
+}
+
+function saveInProgressGame() {
+  const snap = collectSaveSnapshot();
+  if (snap) writeSave(snap);
+}
+
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+}
+
+function hasSave() {
+  try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; }
+}
+
+function readSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const snap = JSON.parse(raw);
+    if (!snap || snap.v !== SAVE_VERSION) return null;
+    if (typeof snap.time !== 'number' || !snap.player) return null;
+    return snap;
+  } catch (e) { return null; }
+}
+
+/* 按武器/被动等级重算所有派生字段（spdMul/dmgMul/orbitDmg/laserDmg...）。
+ * 恢复存档与"重开"后都用同一条路径，保证数值一致。 */
+function applyPassivesAndWeapons(p) {
+  // 先重置派生字段到初始基线
+  p.spdMul = 1; p.dmgMul = 1; p.cdMul = 1;
+  p.pickupR = 60; p.regen = 0; p.pierce = 0; p.goldMul = 1;
+  p.orbitCount = 0; p.orbitDmg = 0; p.orbitR = 70; p.orbitAngle = 0;
+  p.laserActive = false; p.laserTarget = null; p.laserDmg = 0; p.laserTick = 0;
+  p.weaponTimers = {};
+  // 重应用所有被动（PASSIVE_MAP[id].apply 是绝对赋值，不累加，可重入）
+  p.passives = p.passives || {};
+  for (const id in p.passives) {
+    if (PASSIVE_MAP[id]) PASSIVE_MAP[id].apply(p, p.passives[id]);
+  }
+  // 武器等级就位即可，开火逻辑由 updatePlayer 的武器循环驱动
+  for (const wid in p.weapons) p.weaponTimers[wid] = 0;
+}
+
+/* 从快照恢复一局游戏。返回 true 表示已切到 playing 状态。 */
+function loadSaveAndStart(snap) {
+  if (!snap) return false;
+  // 复用 startGame 的初始化路径，再覆盖快照字段
+  G.state = 'playing';
+  G.time = snap.time; G.kills = snap.kills; G.gold = snap.gold;
+  G.level = snap.level; G.xp = snap.xp; G.xpNeed = snap.xpNeed;
+  G.spawnTimer = Math.max(1, snap.spawnTimer ?? 1);
+  G.bossTimer = snap.bossTimer ?? 60;
+  G.waveNum = snap.waveNum ?? 0;
+  G.enemies = []; G.projectiles = []; G.particles = [];
+  G.pickups = []; G.floatTexts = [];
+  G.shake = 0; G.flash = 0;
+  G.player = makePlayer();
+  G.player.x = snap.player.x; G.player.y = snap.player.y;
+  G.player.hp = Math.min(snap.player.hp, snap.player.maxHp);
+  G.player.maxHp = snap.player.maxHp;
+  G.player.weapons = { ...snap.player.weapons };
+  G.player.passives = { ...snap.player.passives };
+  applyPassivesAndWeapons(G.player);
+  G.cam.x = G.player.x - W / 2;
+  G.cam.y = G.player.y - H / 2;
+  titleScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  pauseScreen.classList.add('hidden');
+  upgradeBar.classList.add('hidden');
+  pendingUpgrades = null;
+  upgradeQueue = 0;
+  upgradeCooldown = 0;
+  autosaveTick = 0;
+  hud.classList.remove('hidden');
+  pauseBtn.classList.remove('hidden');
+  controlsEl.classList.remove('hidden');
+  offscreenInd.classList.remove('hidden');
+  // 恢复后立即刷一波，避免空场
+  spawnWave();
+  return true;
+}
+
+/* 标题屏刷新 CONTINUE 按钮可见性 */
+function refreshContinueBtn() {
+  if (hasSave()) {
+    continueBtn.classList.remove('hidden');
+    const snap = readSave();
+    if (snap) {
+      const m = Math.floor(snap.time / 60), s = Math.floor(snap.time % 60);
+      continueBtn.textContent = `▸ CONTINUE  ${m}:${s.toString().padStart(2, '0')} · LV${snap.level}`;
+    }
+  } else {
+    continueBtn.classList.add('hidden');
   }
 }
 
@@ -917,10 +1121,21 @@ function update(dt) {
     G.bossTimer = 60;
   }
 
+  // 升级队列冷却递减 + 统一推进（替代散落的 setTimeout，避免漏弹）
+  if (upgradeCooldown > 0) upgradeCooldown -= dt;
+  tryAdvanceUpgradeQueue();
+
   updatePlayer(dt);
   updateEnemies(dt);
   updateProjectiles(dt);
   updatePickups(dt);
+
+  // 自动存档：每 5 秒落一次盘，并标记窗口失焦时是否要保存
+  autosaveTick += dt;
+  if (autosaveTick >= AUTOSAVE_INTERVAL) {
+    autosaveTick = 0;
+    saveInProgressGame();
+  }
 
   // decay effects
   if (G.shake > 0) G.shake -= dt * 2;
@@ -1378,17 +1593,31 @@ function loop(now) {
  * EVENT WIRING
  * ============================================================ */
 $('start-btn').onclick = startGame;
+$('continue-btn').onclick = continueGame;
 $('end-restart-btn').onclick = startGame;
 $('end-share-btn').onclick = shareResult;
 $('resume-btn').onclick = togglePause;
 $('restart-btn').onclick = () => { pauseScreen.classList.add('hidden'); startGame(); };
+$('save-exit-btn').onclick = saveAndExit;
 pauseBtn.onclick = togglePause;
 showBestTime();
 requestAnimationFrame(loop);
 
+/* ---- 窗口失焦自动存档：切后台/最小化时落盘，防刷新丢失进度 ---- */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && G.state === 'playing') {
+    saveInProgressGame();
+  }
+});
+/* ---- 页面卸载前最后存一次（刷新/关闭）---- */
+window.addEventListener('pagehide', () => {
+  if (G.state === 'playing') saveInProgressGame();
+}, { capture: true });
+
 /* ---- Debug API for smoke testing ---- */
 window.__NS__ = {
-  G, startGame, togglePause,
+  G, startGame, togglePause, continueGame, saveAndExit,
+  saveInProgressGame, clearSave, hasSave, readSave, collectSaveSnapshot,
   get state() { return { state: G.state, time: G.time, kills: G.kills, level: G.level,
     enemies: G.enemies.length, projectiles: G.projectiles.length, weapons: G.player ? Object.keys(G.player.weapons) : [] }; },
   forceLevelUp: () => { if (G.player) { G.xp = G.xpNeed; gainXP(0); } },
