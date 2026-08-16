@@ -1,0 +1,70 @@
+/* NEON SURVIVORS - style.css */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Noto+Sans+SC:wght@400;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#05050d;color:#e8f4ff;font-family:'Noto Sans SC',Orbitron,sans-serif;user-select:none;-webkit-user-select:none}
+canvas{display:block;position:fixed;inset:0;touch-action:none;image-rendering:auto}
+
+/* ===== HUD ===== */
+#hud{position:fixed;top:0;left:0;right:0;padding:10px 16px;pointer-events:none;z-index:20;
+  background:linear-gradient(180deg,#05050dcc,transparent)}
+.hud-row{display:flex;gap:18px;justify-content:center;max-width:600px;margin:0 auto}
+.hud-stat{display:flex;flex-direction:column;align-items:center;min-width:56px}
+.hud-stat .lbl{font-size:9px;letter-spacing:2px;color:#5a6a8a;font-family:Orbitron;text-transform:uppercase}
+.hud-stat .val{font-size:22px;font-weight:900;font-family:Orbitron;color:#e8f4ff;line-height:1.1}
+.hud-stat.gold .val{color:#ffd24a}
+.xp-wrap{height:5px;background:#ffffff15;border-radius:3px;max-width:600px;margin:8px auto 0;overflow:hidden}
+.xp-bar{height:100%;width:0%;background:linear-gradient(90deg,#28f7ff,#7c5cff);border-radius:3px;transition:width .12s}
+#pause-btn{position:fixed;top:10px;right:14px;z-index:25;width:36px;height:36px;border:1px solid #28f7ff55;background:#0a1428cc;color:#28f7ff;font-family:Orbitron;font-weight:900;font-size:14px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#pause-btn:active{background:#28f7ff22}
+
+/* ===== Screens ===== */
+.screen{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 40%,#0a0a1e,#05050d);padding:24px;text-align:center}
+.screen.hidden{display:none}
+.eyebrow{font-family:Orbitron;color:#28f7ff;letter-spacing:5px;font-size:10px;margin-bottom:6px}
+.eyebrow:before,.eyebrow:after{content:'-';margin:0 10px;color:#ff2aa8}
+#title-screen h1{font-family:Orbitron;font-size:clamp(38px,9vw,80px);font-weight:900;font-style:italic;line-height:.92;letter-spacing:1px;
+  text-shadow:3px 2px #ff2aa8,0 0 28px #28f7ff44}
+#title-screen h1 span{display:block;color:transparent;-webkit-text-stroke:1.5px #28f7ff}
+.subtitle{font-size:15px;color:#9eb1c9;margin:8px 0 16px;letter-spacing:3px}
+.desc{font-size:13px;color:#7a8aa8;line-height:1.7;max-width:340px;margin-bottom:26px}
+.big-btn{font-family:Orbitron;font-weight:800;font-size:15px;letter-spacing:2px;padding:14px 40px;
+  background:linear-gradient(135deg,#28f7ff,#7c5cff);color:#05050d;border:none;border-radius:8px;cursor:pointer;
+  margin:6px;box-shadow:0 4px 20px #28f7ff33;transition:.15s}
+.big-btn:active{transform:translateY(2px);box-shadow:0 2px 10px #28f7ff44}
+.big-btn.ghost{background:transparent;color:#e8f4ff;border:1px solid #e8f4ff55;box-shadow:none}
+.tips{display:flex;flex-direction:column;gap:4px;margin-top:22px}
+.tips span{font-size:11px;color:#5a6a8a;letter-spacing:1px}
+.best{margin-top:18px;font-size:12px;color:#ffd24a;font-family:Orbitron;letter-spacing:1px}
+
+/* ===== Upgrade cards ===== */
+.upgrade-eyebrow{font-family:Orbitron;color:#ffd24a;letter-spacing:4px;font-size:13px;margin-bottom:22px;text-transform:uppercase}
+.cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:760px}
+.card{width:200px;min-height:240px;background:linear-gradient(160deg,#0e1830,#0a0a1e);
+  border:1px solid #28f7ff44;border-radius:12px;padding:20px 16px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;transition:.18s;position:relative;overflow:hidden}
+.card:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,#28f7ff15,transparent 60%);pointer-events:none}
+.card:hover,.card:active{transform:translateY(-6px);border-color:#28f7ff;box-shadow:0 16px 40px #28f7ff22}
+.card-icon{width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.card-icon svg{width:100%;height:100%}
+.card-name{font-family:Orbitron;font-weight:800;font-size:16px;color:#e8f4ff;margin-bottom:4px;text-align:center}
+.card .rarity{font-size:9px;letter-spacing:2px;font-family:Orbitron;margin-bottom:10px;text-transform:uppercase}
+.card-desc{font-size:12px;color:#9eb1c9;line-height:1.5;text-align:center;flex:1;display:flex;align-items:center}
+.card.level{position:absolute;top:10px;right:12px;font-size:11px;font-family:Orbitron;color:#ffd24a;font-weight:800}
+
+/* ===== End screen ===== */
+#end-title{font-family:Orbitron;font-size:clamp(32px,7vw,56px);font-weight:900;font-style:italic;margin-bottom:18px;
+  text-shadow:2px 2px #ff2aa8}
+.end-stats{display:flex;flex-direction:column;gap:8px;margin-bottom:26px;min-width:240px}
+.end-stats .row{display:flex;justify-content:space-between;font-family:Orbitron;font-size:14px;padding:4px 0;border-bottom:1px solid #ffffff11}
+.end-stats .row .k{color:#7a8aa8;letter-spacing:1px}
+.end-stats .row .v{color:#e8f4ff;font-weight:800}
+.end-stats .row.best .v{color:#ffd24a}
+
+/* ===== Joystick ===== */
+#joystick{position:fixed;bottom:0;left:0;right:0;height:200px;z-index:15;pointer-events:none}
+#joystick-base{position:absolute;bottom:30px;left:30px;width:120px;height:120px;border-radius:50%;
+  background:#0a142855;border:2px solid #28f7ff44;pointer-events:auto;touch-action:none}
+#joystick-stick{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;
+  background:radial-gradient(circle,#28f7ff,#7c5cff);box-shadow:0 0 16px #28f7ff88}

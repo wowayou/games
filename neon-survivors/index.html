@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="霓虹幸存者：纯前端割草生存游戏，自动攻击、技能升级、满屏弹幕">
+<title>NEON SURVIVORS // 霓虹幸存者</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<!-- 顶部 HUD -->
+<div id="hud" class="hidden">
+  <div class="hud-row">
+    <div class="hud-stat"><span class="lbl">时间</span><span id="hud-time" class="val">0:00</span></div>
+    <div class="hud-stat"><span class="lbl">等级</span><span id="hud-level" class="val">1</span></div>
+    <div class="hud-stat"><span class="lbl">击杀</span><span id="hud-kills" class="val">0</span></div>
+    <div class="hud-stat gold"><span class="lbl">金币</span><span id="hud-gold" class="val">0</span></div>
+  </div>
+  <div class="xp-wrap"><div id="hud-xp" class="xp-bar"></div></div>
+</div>
+
+<!-- 暂停按钮 -->
+<button id="pause-btn" class="hidden">II</button>
+
+<!-- 开始界面 -->
+<div id="title-screen" class="screen">
+  <div class="eyebrow">WOWAYOU · 割草生存</div>
+  <h1>NEON<span>SURVIVORS</span></h1>
+  <p class="subtitle">霓虹幸存者</p>
+  <p class="desc">在无尽霓虹废墟中生存。<br>移动躲避，武器自动开火，升级选技能，活到最后。</p>
+  <button id="start-btn" class="big-btn">开始生存</button>
+  <div class="tips">
+    <span>WASD / 方向键 / 触屏摇杆 移动</span>
+    <span>武器自动攻击</span>
+    <span>P / Esc 暂停</span>
+  </div>
+  <div class="best" id="best-time">最佳生存：尚未记录</div>
+</div>
+
+<!-- 升级界面 -->
+<div id="upgrade-screen" class="screen hidden">
+  <div class="upgrade-eyebrow">升级！选择一项强化</div>
+  <div id="upgrade-cards" class="cards"></div>
+</div>
+
+<!-- 暂停界面 -->
+<div id="pause-screen" class="screen hidden">
+  <h2>暂停</h2>
+  <button id="resume-btn" class="big-btn">继续</button>
+  <button id="restart-btn" class="big-btn ghost">重新开始</button>
+</div>
+
+<!-- 结束界面 -->
+<div id="end-screen" class="screen hidden">
+  <h2 id="end-title">你倒下了</h2>
+  <div class="end-stats" id="end-stats"></div>
+  <button id="end-restart-btn" class="big-btn">再来一局</button>
+  <button id="end-share-btn" class="big-btn ghost">分享战绩</button>
+</div>
+
+<!-- 移动端虚拟摇杆 -->
+<div id="joystick" class="hidden">
+  <div id="joystick-base"><div id="joystick-stick"></div></div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
