@@ -10,7 +10,7 @@ const cvs = document.getElementById('game');
 const ctx = cvs.getContext('2d', { alpha: false });
 const $ = (id) => document.getElementById(id);
 const hud = $('hud'), pauseBtn = $('pause-btn');
-const titleScreen = $('title-screen'), upgradeScreen = $('upgrade-screen');
+const titleScreen = $('title-screen'), upgradeBar = $('upgrade-bar');
 const pauseScreen = $('pause-screen'), endScreen = $('end-screen');
 const upgradeCards = $('upgrade-cards');
 const joyBase = $('joystick-base'), joyStick = $('joystick-stick');
@@ -70,6 +70,11 @@ window.addEventListener('keydown', e => {
   if (k === 'd' || k === 'arrowright') keyVisual('d', true);
   if (k === 'p' || k === 'escape') togglePause();
   if (k === 'm') Audio.toggleMute();
+  // 升级快捷键 1/2/3
+  if (pendingUpgrades && (k === '1' || k === '2' || k === '3')) {
+    const idx = parseInt(k) - 1;
+    if (idx < pendingUpgrades.length) chooseUpgrade(idx);
+  }
 });
 window.addEventListener('keyup', e => {
   const k = e.key.toLowerCase();
@@ -668,12 +673,20 @@ function updateParticles(dt) {
 }
 
 /* ---- XP & leveling ---- */
+// 升级队列：连续升级时排队，选完一组再显示下一组
+let upgradeQueue = 0;
+
 function gainXP(amt) {
   G.xp += amt;
   while (G.xp >= G.xpNeed) {
     G.xp -= G.xpNeed;
     G.level++;
     G.xpNeed = Math.floor(G.xpNeed * 1.35 + 2);
+    upgradeQueue++;
+  }
+  // 如果当前没有显示升级条，则显示队列中的下一组
+  if (upgradeQueue > 0 && !pendingUpgrades) {
+    upgradeQueue--;
     offerUpgrades();
   }
 }
@@ -681,6 +694,9 @@ function gainXP(amt) {
 /* ============================================================
  * UPGRADE SYSTEM
  * ============================================================ */
+// 当前待选升级选项（供快捷键 1/2/3 使用）
+let pendingUpgrades = null;
+
 function offerUpgrades() {
   const p = G.player;
   const options = [];
@@ -688,7 +704,6 @@ function offerUpgrades() {
   for (const w of WEAPONS) {
     const cur = p.weapons[w.id] || 0;
     if (cur === 0) {
-      // new weapon (only if < 4 weapons owned, and weight by rarity)
       if (Object.keys(p.weapons).length < 5) options.push({ kind: 'weapon', id: w.id, lv: 1 });
     } else if (cur < w.maxLevel) {
       options.push({ kind: 'weapon', id: w.id, lv: cur + 1 });
@@ -704,48 +719,52 @@ function offerUpgrades() {
   // pick 3 random
   const shuffled = options.sort(() => Math.random() - 0.5).slice(0, 3);
   if (shuffled.length === 0) {
-    // fallback: heal
     shuffled.push({ kind: 'heal', id: 'heal', lv: 1 });
   }
+  pendingUpgrades = shuffled;
 
   upgradeCards.innerHTML = '';
-  for (const opt of shuffled) {
-    let name, desc, color, rarity, iconSvg, lvLabel;
+  shuffled.forEach((opt, i) => {
+    let name, desc, rarity, iconSvg, lvLabel;
     if (opt.kind === 'weapon') {
       const w = WEAPON_MAP[opt.id];
-      name = w.name; color = w.color; rarity = w.rarity;
-      desc = w.desc(opt.lv); iconSvg = weaponIcon(opt.id, color);
+      name = w.name; rarity = w.rarity;
+      desc = w.desc(opt.lv); iconSvg = weaponIcon(opt.id, w.color);
       lvLabel = p.weapons[opt.id] ? 'Lv ' + p.weapons[opt.id] + '→' + opt.lv : '新！';
     } else if (opt.kind === 'passive') {
       const ps = PASSIVE_MAP[opt.id];
-      name = ps.name; color = ps.color; rarity = ps.rarity;
-      desc = ps.desc(opt.lv); iconSvg = passiveIcon(opt.id, color);
+      name = ps.name; rarity = ps.rarity;
+      desc = ps.desc(opt.lv); iconSvg = passiveIcon(opt.id, ps.color);
       lvLabel = (p.passives[opt.id] || 0) > 0 ? 'Lv ' + (p.passives[opt.id] || 0) + '→' + opt.lv : '新！';
     } else {
-      name = '紧急修复'; color = '#62ecd5'; rarity = '特殊';
+      name = '紧急修复'; rarity = '特殊';
       desc = '回复 50% 最大生命'; iconSvg = healIcon(); lvLabel = '';
     }
     const card = document.createElement('div');
     card.className = 'card';
     card.setAttribute('data-rarity', rarity);
-    card.innerHTML = `<div class="card-icon">${iconSvg}</div>
+    card.innerHTML = `<div class="key-hint">${i + 1}</div>
+      <div class="card-icon">${iconSvg}</div>
       <div class="card-name">${name}</div>
       <div class="rarity" style="color:${rarityColor(rarity)}">${rarity}</div>
       <div class="card-desc">${desc}</div>
       ${lvLabel ? `<div class="level">${lvLabel}</div>` : ''}`;
-    card.onclick = () => chooseUpgrade(opt);
+    card.onclick = () => chooseUpgrade(i);
     upgradeCards.appendChild(card);
-  }
+  });
 
-  G.state = 'upgrade';
-  upgradeScreen.classList.remove('hidden');
+  // 游戏不暂停，只显示悬浮条
+  upgradeBar.classList.remove('hidden');
 }
 
 function rarityColor(r) {
   return r === '史诗' ? '#ffb800' : r === '稀有' ? '#b14dff' : '#5a7aa8';
 }
 
-function chooseUpgrade(opt) {
+function chooseUpgrade(idx) {
+  if (!pendingUpgrades) return;
+  const opt = typeof idx === 'number' ? pendingUpgrades[idx] : idx;
+  if (!opt) return;
   const p = G.player;
   if (opt.kind === 'weapon') {
     p.weapons[opt.id] = opt.lv;
@@ -757,8 +776,14 @@ function chooseUpgrade(opt) {
     p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.5);
   }
   Audio.levelup();
-  upgradeScreen.classList.add('hidden');
-  G.state = 'playing';
+  pendingUpgrades = null;
+  upgradeBar.classList.add('hidden');
+  upgradeCards.innerHTML = '';
+  // 如果队列里还有待选升级，延迟一小段时间再显示下一组
+  if (upgradeQueue > 0) {
+    upgradeQueue--;
+    setTimeout(() => { if (G.state === 'playing' && upgradeQueue >= 0) offerUpgrades(); }, 300);
+  }
 }
 
 /* ---- weapon icons (inline SVG) ---- */
@@ -808,6 +833,9 @@ function startGame() {
   titleScreen.classList.add('hidden');
   endScreen.classList.add('hidden');
   pauseScreen.classList.add('hidden');
+  upgradeBar.classList.add('hidden');
+  pendingUpgrades = null;
+  upgradeQueue = 0;
   hud.classList.remove('hidden');
   pauseBtn.classList.remove('hidden');
   controlsEl.classList.remove('hidden');
