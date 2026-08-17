@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>老板来了 — 摸鱼生存</title>
+  <meta name="description" content="按住假装工作，松开继续摸鱼。你能在老板眼皮底下活多久？" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="office">
+      <div id="ceiling"></div>
+      <div id="corridor">
+        <div id="door">
+          <div id="door-window"></div>
+          <div id="shadow"></div>
+          <div id="visitor"></div>
+        </div>
+        <div id="fluorescent"></div>
+      </div>
+      <div id="desk">
+        <div id="monitors">
+          <section class="monitor" id="slack-monitor">
+            <header>摸鱼屏 · 短视频</header>
+            <div class="screen" id="slack-screen">
+              <div id="video-feed"></div>
+              <div id="comments"></div>
+              <div id="like-burst"></div>
+            </div>
+          </section>
+          <section class="monitor" id="work-monitor">
+            <header>工作屏 · 报表.xlsx</header>
+            <div class="screen" id="work-screen">
+              <pre id="work-code"></pre>
+            </div>
+          </section>
+        </div>
+        <div id="keyboard"></div>
+      </div>
+    </div>
+
+    <canvas id="fx"></canvas>
+
+    <header id="hud">
+      <div class="stat">
+        <span>摸鱼</span>
+        <strong id="hud-time">00:00.0</strong>
+      </div>
+      <div class="stat">
+        <span>连躲</span>
+        <strong id="hud-combo">0</strong>
+      </div>
+      <div class="stat">
+        <span>最佳</span>
+        <strong id="hud-best">00:00.0</strong>
+      </div>
+    </header>
+
+    <div id="alert"></div>
+    <div id="toast"></div>
+
+    <button id="hold-btn" type="button">按住假装工作</button>
+
+    <section id="overlay" class="show">
+      <div class="card" id="menu-card">
+        <p class="eyebrow">工位生存 · 一款会让人社死的小游戏</p>
+        <h1>老板来了</h1>
+        <p class="lead">松开手指继续摸鱼，按住立刻切回工作界面。<br />老板推门的那一下，你还来得及吗？</p>
+        <ul class="tips">
+          <li>电脑 / 空格键或鼠标按住 = 假装工作</li>
+          <li>手机 / 按住底部大按钮</li>
+          <li>同事经过别慌，只有老板能抓你</li>
+        </ul>
+        <button id="start-btn" type="button">开始摸鱼</button>
+        <p class="best-line">本机最佳：<span id="menu-best">还没有记录</span></p>
+      </div>
+
+      <div class="card hidden" id="over-card">
+        <p class="eyebrow" id="over-rank">社死现场</p>
+        <h2 id="over-title">你被抓了</h2>
+        <p class="lead" id="over-reason">老板站在你身后，短视频还在自动连播。</p>
+        <dl class="scores">
+          <div><dt>摸鱼时长</dt><dd id="over-time">00:00.0</dd></div>
+          <div><dt>成功躲开</dt><dd id="over-combo">0 次</dd></div>
+          <div><dt>本机最佳</dt><dd id="over-best">00:00.0</dd></div>
+        </dl>
+        <div class="row">
+          <button id="retry-btn" type="button">再摸一次</button>
+          <button id="share-btn" type="button" class="ghost">复制战绩</button>
+        </div>
+        <p class="share-hint" id="share-hint"></p>
+      </div>
+    </section>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
