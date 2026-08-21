@@ -28,14 +28,14 @@ try {
   // Test 3: high-speed ball bounces off paddle (use direct tick to simulate)
   // Spawn ball above paddle, then manually call many ticks to simulate movement
   await ev('var S=__FORGE_DEBUG__.S;var H=innerHeight;S.balls=[];S.balls.push({x:S.paddle.x,y:H-120,vx:0,vy:800,r:7,damage:1,pierce:0,kind:"ember",trail:[]})');
-  // Manually run ticks to bypass slow rendering: call the internal loop function
-  // The game loop is: loop(t) which calls tick(dt). We can dispatch RAF or call tick directly.
-  // Since tick is internal, we use the fact that the game loop runs via requestAnimationFrame.
-  // In headless at ~3fps, we need to wait longer.
-  await sleep(5000);
-  var pbStr = await ev('JSON.stringify({count:__FORGE_DEBUG__.S.balls.length,vy:__FORGE_DEBUG__.S.balls.length?Math.round(__FORGE_DEBUG__.S.balls[0].vy):0,y:__FORGE_DEBUG__.S.balls.length?Math.round(__FORGE_DEBUG__.S.balls[0].y):0,bounced:__FORGE_DEBUG__.S.balls.length?__FORGE_DEBUG__.S.balls[0].vy<0:false})');
-  var pbObj = JSON.parse(pbStr);
-  check('High-speed ball bounces off paddle', pbObj.bounced, 'vy=' + pbObj.vy + ' y=' + pbObj.y + ' count=' + pbObj.count);
+  // The ball oscillates paddle <-> brick field with a ~2s period, so sampling vy once at a
+  // fixed delay is phase-dependent and flaky. Latch the first upward frame instead: a paddle
+  // bounce is proven by vy ever going negative, whatever the ball is doing when we look.
+  await ev('window.__PB_LATCH__=false;(function p(){if(!window.__PB_DONE__){var b=__FORGE_DEBUG__.S.balls[0];if(b&&b.vy<0)window.__PB_LATCH__=true;requestAnimationFrame(p)}})()');
+  const bounced = await waitFor('window.__PB_LATCH__===true', 8000);
+  await ev('window.__PB_DONE__=true');
+  var pbObj = JSON.parse(await ev('JSON.stringify({count:__FORGE_DEBUG__.S.balls.length,vy:__FORGE_DEBUG__.S.balls.length?Math.round(__FORGE_DEBUG__.S.balls[0].vy):0,y:__FORGE_DEBUG__.S.balls.length?Math.round(__FORGE_DEBUG__.S.balls[0].y):0})'));
+  check('High-speed ball bounces off paddle', bounced, 'latchedUpward=' + bounced + ' nowVy=' + pbObj.vy + ' y=' + pbObj.y + ' count=' + pbObj.count);
 
   // Test 4: ball removed after falling below screen (miss paddle)
   await ev('var S=__FORGE_DEBUG__.S;var H=innerHeight;S.balls=[];S.balls.push({x:50,y:H-120,vx:50,vy:600,r:7,damage:1,pierce:0,kind:"ember",trail:[]})');
