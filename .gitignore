@@ -1,0 +1,29 @@
+# Independent repositories and the original release checkout.
+/.release-games/
+/cloud-shepherd/
+/cosmic-merge/
+/linan-xia-ying/
+/magnet-sandbox/
+
+# Historical lobby copy; index.html at the repository root is authoritative.
+/arcade-site/
+
+# Local tools, dependencies, build output and diagnostics.
+.agents/
+.aws/
+.claude/
+.codex/
+node_modules/
+dist/
+.devtest/
+__pycache__/
+/_site/
+/.site-build-*/
+/.git-restore-*/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+shot-*.png
+/neon-survivors/screenshot-entities.png

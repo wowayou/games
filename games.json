@@ -1,0 +1,92 @@
+{
+  "games": [
+    {
+      "id": "six-pm-sprint",
+      "name": "六点夺秒",
+      "status": "published",
+      "url": "https://wowayou.github.io/six-pm-sprint/",
+      "title": ["SIX PM", "SPRINT"],
+      "badge": "ONE TAP · SURVIVAL",
+      "description": "45 秒下班挑战：轻触或按空格反向，躲开临时加会，在每日同图里争取准点下班。",
+      "tags": ["单指操作", "45 秒一局", "每日挑战"]
+    },
+    {
+      "id": "cosmic-merge",
+      "name": "宇宙合成",
+      "status": "published",
+      "url": "https://wowayou.github.io/cosmic-merge/",
+      "title": ["COSMIC", "MERGE"],
+      "badge": "CANVAS · MERGE",
+      "description": "投放并合成相同天体，从星尘一路演化到黑洞。",
+      "tags": ["天体合成", "物理碰撞"]
+    },
+    {
+      "id": "neon-survivors",
+      "name": "霓虹幸存者",
+      "status": "published",
+      "directory": "neon-survivors",
+      "theme": "survivor",
+      "title": ["NEON", "SURVIVORS"],
+      "badge": "SURVIVOR · BULLET HEAVEN",
+      "description": "在霓虹废墟生存到最后：移动躲避、武器自动开火、升级选技能、满屏弹幕与 Boss。",
+      "tags": ["割草生存", "技能构筑", "自动战斗"]
+    },
+    {
+      "id": "forge-breaker",
+      "name": "地狱熔炉",
+      "status": "published",
+      "directory": "forge-breaker",
+      "theme": "forge",
+      "title": ["HELL", "FORGE"],
+      "badge": "ROGUELITE · BREAKOUT",
+      "description": "把元素球打入深渊：火冰雷构筑、融合进化、Boss 波次、矿石锻造与炉心保卫。",
+      "tags": ["肉鸽打砖块", "球种融合", "锻造升级"]
+    },
+    {
+      "id": "neon-velocity",
+      "name": "霓虹极速",
+      "status": "published",
+      "directory": "neon-velocity",
+      "title": ["NEON", "VELOCITY"],
+      "badge": "THREE.JS · 3D RACING",
+      "description": "电脑体验更佳。穿越雨夜新九龙：WASD 驾驶、硬核 AI、加速带、有限氮气、碰撞与三圈计时。",
+      "tags": ["赛博朋克", "3D 城市", "合成音乐"]
+    },
+    {
+      "id": "boss-incoming",
+      "name": "老板来了",
+      "status": "draft",
+      "directory": "boss-incoming",
+      "title": ["BOSS", "INCOMING"],
+      "badge": "SURVIVAL · OFFICE",
+      "description": "按住假装工作，松开继续摸鱼。你能在老板眼皮底下活多久？",
+      "tags": ["摸鱼生存", "时机判断"]
+    },
+    {
+      "id": "linan-xia-ying",
+      "name": "临安侠影",
+      "status": "hidden",
+      "url": "https://wowayou.github.io/linan-xia-ying/",
+      "title": ["LIN'AN", "SHADOW"],
+      "badge": "THREE.JS · ACTION",
+      "description": "穿行南宋临安古街、竹林与西湖，挥剑、飞镖和轻功闯关。",
+      "tags": ["武侠动作", "3D 闯关"]
+    },
+    {
+      "id": "cloud-shepherd",
+      "name": "牧云",
+      "status": "hidden",
+      "url": "https://wowayou.github.io/cloud-shepherd/",
+      "title": ["CLOUD", "SHEPHERD"],
+      "description": "云朵牧羊人。"
+    },
+    {
+      "id": "magnet-sandbox",
+      "name": "磁力沙盒",
+      "status": "hidden",
+      "url": "",
+      "title": ["MAGNET", "SANDBOX"],
+      "description": "磁力沙盘手感原型。"
+    }
+  ]
+}
