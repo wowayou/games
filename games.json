@@ -11,6 +11,16 @@
       "tags": ["单指操作", "45 秒一局", "每日挑战"]
     },
     {
+      "id": "cat-flap",
+      "name": "Cat Flap",
+      "status": "published",
+      "url": "https://wowayou.github.io/cat-flap/",
+      "title": ["CAT", "FLAP"],
+      "badge": "ONE TAP · FLYING",
+      "description": "披红斗篷的橘猫一点就冲：穿过猫爬架，再把幽灵猫发给朋友，在同一条航线上比赛。",
+      "tags": ["单指操作", "好友幽灵赛", "手机友好"]
+    },
+    {
       "id": "cosmic-merge",
       "name": "宇宙合成",
       "status": "published",

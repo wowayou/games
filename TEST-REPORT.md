@@ -1,5 +1,16 @@
 # 游戏测试报告
 
+## Cat Flap 加入策展：2026-10-03
+
+本地 `games.json` 新增 Cat Flap 正式外链，排在六点夺秒之后；现为六款正式游戏、一款草稿。顶层忽略规则补充 `/cat-flap/`，游戏继续由独立仓库管理。
+
+- `node --test tests/catalog.test.mjs` 通过；另运行 `node tests/catalog.test.mjs` 核对实际用例，13/13 通过。
+- `node scripts/build-site.mjs`：6 款正式、1 款草稿、22 个文件。发布清单顺序与大厅一致，Cat Flap 源码未打包，19 个本地游戏资源与源文件逐字节一致。
+- Chromium 通过本地 HTTP `/games/` 路径加载实际 `_site/`：六款卡片的顺序、计数、三个独立外链、草稿入口及赛车提示均通过；320、390、768、1024、1440 像素宽无横向溢出、标题裁切、介绍与标签重叠或标签与箭头重叠。已查看桌面和最窄屏截图，未收集到浏览器运行时错误。
+- Cat Flap 公开站点 `https://wowayou.github.io/cat-flap/` 返回 HTTP 200；顶层忽略规则生效，独立仓库工作区保持干净。
+
+浏览器脚本、截图和布局结果位于 `/tmp/games-cat-flap-curation-20261003/`。本轮只验证大厅收录与链接可达性，未重跑 Cat Flap 玩法及好友挑战测试。以上为提交前本地验收记录；用户随后授权提交、推送并部署，实际发布状态以 [部署工作流](https://github.com/wowayou/games/actions/workflows/deploy-pages.yml) 及线上核验为准。
+
 ## 发布前回归：2026-10-02
 
 用户已授权推送发布。以下检查针对五款策展配置生成的实际 `_site/`，游戏实现没有改动；浏览器通过 `http://127.0.0.1:4180/neon-survivors/` 访问发布内容。

@@ -1,5 +1,6 @@
 # Independent repositories and the original release checkout.
 /.release-games/
+/cat-flap/
 /cloud-shepherd/
 /cosmic-merge/
 /linan-xia-ying/
