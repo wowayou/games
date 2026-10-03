@@ -139,7 +139,7 @@ S.balls = [{ x: 640, y: H - 100, vx: 0, vy: 600, r: 8, damage: 1, pierce: 0, kin
 for (let i = 0; i < 20; i++) D.step(1 / 60);
 check('Stacks never exceed cap in play', S.stacks === MAX_STACKS, { stacks: S.stacks });
 
-// ---- 8. tick 路径：丢单球 -> 层数腰斩 ----
+// ---- 8. tick 路径：丢单球 -> 保留 80% 层数 ----
 D.reset();
 S.enemies = dummy();
 S.stacks = 10;
@@ -149,15 +149,15 @@ S.balls = [
   { x: 900, y: H + 100, vx: 0, vy: 600, r: 8, damage: 1, pierce: 0, kind: 'ember', trail: [] },
 ];
 D.step(1 / 60);
-check('Losing one ball halves stacks', S.stacks === 5, { stacks: S.stacks, balls: S.balls.length });
+check('Losing one ball retains 80% of stacks', S.stacks === 8, { stacks: S.stacks, balls: S.balls.length });
 
-// ---- 9. tick 路径：丢最后一球 -> 层数清零、无自动重发 ----
+// ---- 9. tick 路径：丢最后一球 -> 保留一半层数、无自动重发 ----
 S.stacks = 8;
 S.combo = 30;
 S.balls = [{ x: 900, y: H + 100, vx: 0, vy: 600, r: 8, damage: 1, pierce: 0, kind: 'ember', trail: [] }];
 const usedBefore = S.reloadsUsed;
 D.step(1 / 60);
-check('Losing last ball zeroes stacks and combo', S.stacks === 0 && S.combo === 0, { stacks: S.stacks, combo: S.combo });
+check('Losing last ball retains half stacks and resets combo', S.stacks === 4 && S.combo === 0, { stacks: S.stacks, combo: S.combo });
 // 旧行为：0.8s 后自动重发。推进 2 秒确认不再自动装填。
 for (let i = 0; i < 120; i++) D.step(1 / 60);
 check('No auto-relaunch after volley ends', S.balls.length === 0 && S.reloadsUsed === usedBefore, { balls: S.balls.length, used: S.reloadsUsed, before: usedBefore });
