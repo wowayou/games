@@ -1152,15 +1152,6 @@ function update(dt) {
   // vignette 反馈
   // 受击边缘脉冲
   vignetteHurt.style.opacity = G.flash > 0 ? Math.min(G.flash, 1) * 0.6 : 0;
-  // 低血量呼吸警告
-  const hpRatio = G.player.hp / G.player.maxHp;
-  if (hpRatio < 0.3 && G.state === 'playing') {
-    vignetteLowhp.style.opacity = '';
-    vignetteLowhp.style.display = '';
-  } else {
-    vignetteLowhp.style.opacity = '0';
-  }
-
   // 屏外敌人方向指示器
   updateOffscreenIndicators();
 }
@@ -1207,6 +1198,9 @@ function updateOffscreenIndicators() {
  * RENDER
  * ============================================================ */
 function render() {
+  // CSS 动画优先于普通 opacity；仅在游玩且低血量时启用，暂停/结算也会及时关闭。
+  vignetteLowhp.classList.toggle('active', G.state === 'playing' && !!G.player
+    && G.player.hp / G.player.maxHp < 0.3);
   // background: deep dark
   ctx.save();
   ctx.fillStyle = '#0a0908';

@@ -59,7 +59,7 @@
 
 当前配置为六款正式游戏、一款草稿，其余隐藏。正式区顺序为六点夺秒、Cat Flap、宇宙合成、霓虹幸存者、地狱熔炉、霓虹极速；前三款使用独立站点外链。Cat Flap 于 2026-10-03 按用户要求加入策展，采用独立项目提供的收录文案，放在六点夺秒之后。`published` 为正式卡片，`draft` 为公开的页脚试玩入口，`hidden` 不展示且不打包本仓库游戏文件。数组顺序控制展示顺序，文案也在配置中维护。独立游戏使用 `url` 连接各自站点，不复制仓库；磁力沙盒上线前需先填写独立站点地址。
 
-发布工作流先运行 `node --test tests/catalog.test.mjs`，再执行 `node scripts/build-site.mjs`。默认配置收集到 `_site/` 的布局：
+发布工作流先运行 `node --test tests/*.test.mjs`（目录配置及离线模拟回归），再执行 `node scripts/build-site.mjs`。默认配置收集到 `_site/` 的布局：
 
 ```text
 _site/
@@ -141,6 +141,7 @@ node test-physics.mjs
 
 - `index.html` / `style.css` / `game.js`
 - `smoke.mjs`、`deep-smoke.mjs`、`ball-physics-test.mjs`、`cdp.mjs`
+- `balance-sim.mjs`、`skill-sim.mjs`、`sim-harness.mjs`：固定种子的离线分析；运行方式与模拟假设见 README「熔炉离线分析」。`diag.mjs` 为本地一次性诊断，已忽略。
 
 ### 验证
 
@@ -165,11 +166,11 @@ node ball-physics-test.mjs
 ### 文件
 
 - `index.html` / `style.css` / `game.js`
-- `smoke.mjs`
+- `smoke.mjs`、`deep-smoke.mjs`、`visual-smoke.mjs`
 - `regress-save.mjs`、`regress-save-passives.mjs`、`regress-stuck.mjs`
 - `cdp.mjs`
 
-发布前已对实际 `_site/` 完整执行以上烟测与三组回归：分别 17/17、25/25、20/20、8/8 通过；另保留先前 7 项局部交互记录。结果见 `TEST-REPORT.md`，本地服务与 `CHROME` / `TARGET` 用法见 README。工作目录里的 `deep-smoke.mjs`、`visual-smoke.mjs` 是尚未纳入本次提交的本地诊断脚本。
+2026-10-02 发布前已对实际 `_site/` 执行烟测与三组回归：分别 17/17、25/25、20/20、8/8 通过；另保留先前 7 项局部交互记录。2026-10-03 整理并纳入深度与视觉脚本，使用独立发布目录补验选卡、Boss 击杀、死亡结算与视觉状态；具体结果见 `TEST-REPORT.md`，本地服务及 `CHROME` / `TARGET` / `SCREENSHOT` 用法见 README。低血量警告改为仅在游玩且生命低于 30% 时启用动画，修复满血时仍闪烁的问题；暂停、结算及标题屏关闭警告。
 
 ## 草稿：`boss-incoming/`（老板来了）
 
@@ -208,7 +209,7 @@ python3 -m http.server 4173
 ## 建议下一步
 
 1. 五款策展及发布前回归已完成；2026-10-03 本地配置新增 Cat Flap，检查记录见 `TEST-REPORT.md`。后续上下架继续修改 `games.json`。
-2. 幸存者四组烟测 / 回归已随仓库提供；后续修改其玩法时按范围复验，长局与真机性能不能由现有烟测代替。
+2. 幸存者六组烟测 / 回归已随仓库提供；后续修改其玩法时按范围复验，长局与真机性能不能由现有烟测代替。
 3. 顶层 Git 关联已完成；后续检查差异并按用途选择提交文件。发布使用根工作流，不再手工复制到 `.release-games/`。
 4. 博客与 `personal-blog` 仍不要动。
 

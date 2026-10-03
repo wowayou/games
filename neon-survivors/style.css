@@ -39,7 +39,8 @@ canvas#game { display: block; position: fixed; inset: 0; touch-action: none; }
 /* ===== Vignette 反馈层 ===== */
 .vignette-layer { position: fixed; inset: 0; z-index: 18; pointer-events: none; opacity: 0; transition: opacity .12s; }
 #vignette-hurt { box-shadow: inset 0 0 80px 20px var(--rust); }
-#vignette-lowhp { box-shadow: inset 0 0 70px 30px rgba(200,52,26,0.6); animation: lowhp-pulse 1s steps(8) infinite; }
+#vignette-lowhp { box-shadow: inset 0 0 70px 30px rgba(200,52,26,0.6); }
+#vignette-lowhp.active { animation: lowhp-pulse 1s steps(8) infinite; }
 @keyframes lowhp-pulse { 0%,100% { opacity: 0.2; } 50% { opacity: 0.5; } }
 
 /* ===== 屏外指示器 ===== */

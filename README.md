@@ -91,7 +91,7 @@ python3 -m http.server 4174 --directory _site
 输出包含大厅、`catalog.mjs`、仅含上架和草稿条目的 `games.json`，以及选中的本地游戏目录里的 HTML、CSS、JavaScript 文件。独立仓库、依赖、测试脚本、截图和本地工具配置不进入发布目录。每次成功打包会替换旧输出，避免已下架游戏残留；配置检查或资源复制失败时保留上一份本地输出，并阻止工作流继续部署。若游戏新增其他类型或子目录资源，需同步更新收集脚本。
 
 ```bash
-node --test tests/catalog.test.mjs
+node --test tests/*.test.mjs
 node scripts/build-site.mjs
 ```
 
@@ -116,9 +116,30 @@ node neon-survivors/smoke.mjs
 node neon-survivors/regress-save.mjs
 node neon-survivors/regress-save-passives.mjs
 node neon-survivors/regress-stuck.mjs
+node neon-survivors/deep-smoke.mjs
+node neon-survivors/visual-smoke.mjs
 ```
 
 脚本需要本机 Chromium。若默认缓存路径不适用，通过 `CHROME` 环境变量指定可执行文件；`TARGET` 可覆盖默认测试地址。浏览器检查需要允许启动进程与本地调试端口。
+
+`deep-smoke.mjs` 使用受控抽牌和敌人场景，检查真实选卡、Boss 击杀、接触死亡与结算。`visual-smoke.mjs` 检查双方实际发射的弹丸、键盘反馈，以及低血量警告在 30% 阈值、暂停和回血时的显示状态；截图默认写入已忽略的 `neon-survivors/.devtest/entities.png`，可用 `SCREENSHOT` 指定其他路径。截图仍需人工查看，这两项检查不代表自然长局、真机性能或完整视觉验收。
+
+### 熔炉离线分析
+
+以下工具使用 Node.js 22 或更新版本，无需浏览器或 npm 依赖：
+
+```bash
+node forge-breaker/balance-sim.mjs
+node forge-breaker/skill-sim.mjs
+SEED=42 node forge-breaker/skill-sim.mjs
+```
+
+默认种子为 `12345`，`SEED` 接受 0–4294967295 的整数；相同源码、Node.js 版本和种子可重放同一结果。`sim-harness.mjs` 在独立环境执行真实 `game.js`，固定游戏随机数，并省略输入、渲染和提示音计时器。模拟视口为 1280×860，每秒推进 120 步。
+
+- `balance-sim.mjs`：比较 11 个炉次的两种爆发策略。挡板可以瞬移，伤害按炉次预设，每炉最多模拟 120 秒；各策略在同一炉次从相同种子开始。
+- `skill-sim.mjs`：比较四种操作误差及目标更新间隔。挡板由游戏平滑移动，每炉直接加伤害 ×1.5，跳过选卡和购物，最多模拟到第 30 炉或 900 秒。每档重置游戏与操作种子，但不同操作会让后续随机事件分叉。
+
+输出区分完成目标、阵亡和超时；阵亡属于分析结果，不代表脚本执行失败。这些是假设条件下的比较，不能当作真实玩家通关率或平衡性合格证明。5 项可复现性与边界回归位于 `tests/simulations.test.mjs`，随发布工作流执行；浏览器检查按需手动运行。一次性 `forge-breaker/diag.mjs` 留在本地，不纳入仓库。以上 `.mjs` 工具、回归测试及截图均不进入网站发布目录。
 
 ## 许可
 
