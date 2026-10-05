@@ -21,6 +21,16 @@
       "tags": ["单指操作", "好友幽灵赛", "手机友好"]
     },
     {
+      "id": "city-lights",
+      "name": "万家灯火",
+      "status": "published",
+      "url": "https://wowayou.github.io/city-lights/",
+      "title": ["CITY", "LIGHTS"],
+      "badge": "PUZZLE · DAILY",
+      "description": "转动电线，把每一户人家都点亮；每日一题，全城灯火从电站一路亮开。",
+      "tags": ["解谜", "每日一题", "手机友好"]
+    },
+    {
       "id": "cosmic-merge",
       "name": "宇宙合成",
       "status": "published",

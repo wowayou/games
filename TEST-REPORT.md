@@ -1,5 +1,16 @@
 # 游戏测试报告
 
+## 万家灯火加入策展：2026-10-05
+
+本地 `games.json` 新增「万家灯火」（City Lights）正式外链，排在 Cat Flap 之后；现为七款正式游戏、一款草稿。顶层忽略规则补充 `/city-lights/`，游戏继续由独立仓库 `wowayou/city-lights` 管理。本轮只验证大厅收录与链接可达性，游戏玩法、每日题与音效由该独立项目自己的测试负责。
+
+- `node --test tests/*.test.mjs`：18/18 通过（配置与发布选择 13 项、离线模拟回归 5 项）。
+- `node scripts/build-site.mjs`：7 款上架、1 款草稿、22 个文件，与加入前文件数一致（外链只增加公开 `games.json` 条目，不复制源码）；发布清单顺序与大厅一致。
+- 用本机 Chromium 通过本地 HTTP `/games/` 路径加载实际 `_site/`：七张卡片顺序为六点夺秒、Cat Flap、万家灯火、宇宙合成、霓虹幸存者、地狱熔炉、霓虹极速；四个独立外链、草稿入口、`7 款` 计数及赛车「电脑体验更佳」提示均通过；320、390、768、1024、1440 像素宽无横向溢出、标题裁切、介绍与标签重叠或标签与箭头重叠，运行期间无控制台错误。已查看桌面与最窄屏截图。
+- `https://wowayou.github.io/city-lights/` 返回 HTTP 200；`/city-lights/`、`/cat-flap/`、`/cosmic-merge/` 在本仓库发布目录中不存在，确认独立仓库未被误打包；本地四款（幸存者、熔炉、赛车、老板来了）入口均返回 200。
+
+浏览器脚本、截图与布局数据位于 `/tmp/games-city-lights-curation-20261005/`。以上为提交前本地验收记录；推送后实际发布状态以 [部署工作流](https://github.com/wowayou/games/actions/workflows/deploy-pages.yml) 及线上核验为准。
+
 ## 诊断工具整理：2026-10-03
 
 新增入库：熔炉 `balance-sim.mjs`、`skill-sim.mjs` 及独立执行环境 `sim-harness.mjs`；幸存者 `deep-smoke.mjs`、`visual-smoke.mjs`。一次性 `forge-breaker/diag.mjs` 保留本地并忽略。模拟固定游戏与操作随机数，明确预设伤害、跳过选卡/购物等假设，区分完成目标、阵亡和超时；视觉脚本必须看到真实双方弹丸，消除空列表也通过的误报，截图放入 `.devtest/`。

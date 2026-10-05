@@ -17,7 +17,7 @@
 | `draft` | 页脚草稿试玩入口，仍可公开访问 | 是 |
 | `hidden` | 不展示 | 否，下次发布移除旧文件 |
 
-当前正式区按以下顺序展示：**六点夺秒 → Cat Flap → 宇宙合成 → 霓虹幸存者 → 地狱熔炉 → 霓虹极速**。前三款链接到各自独立站点；赛车卡片注明电脑体验更佳。老板来了为 `draft`，其余配置条目为 `hidden`。例如上架临安侠影，只需找到 `"id": "linan-xia-ying"`，把它的 `"status": "hidden"` 改成 `"status": "published"`；再次改回即可从大厅下架。
+当前正式区按以下顺序展示：**六点夺秒 → Cat Flap → 万家灯火 → 宇宙合成 → 霓虹幸存者 → 地狱熔炉 → 霓虹极速**。前四款链接到各自独立站点；赛车卡片注明电脑体验更佳。老板来了为 `draft`，其余配置条目为 `hidden`。例如上架临安侠影，只需找到 `"id": "linan-xia-ying"`，把它的 `"status": "hidden"` 改成 `"status": "published"`；再次改回即可从大厅下架。
 
 数组顺序就是展示顺序；卡片名称、介绍、标签也在同一文件中管理：
 
@@ -43,6 +43,7 @@
 | 目录 | GitHub 仓库 |
 | --- | --- |
 | `cat-flap/` | https://github.com/wowayou/cat-flap |
+| `city-lights/` | https://github.com/wowayou/city-lights |
 | `cosmic-merge/` | https://github.com/wowayou/cosmic-merge |
 | `linan-xia-ying/` | https://github.com/wowayou/linan-xia-ying |
 | `cloud-shepherd/` | https://github.com/wowayou/cloud-shepherd |
