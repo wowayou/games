@@ -13,7 +13,9 @@
   - 大厅资源请求全部同源，无远程字体、图片或脚本请求。8 张 SVG 总计约 17 KB（未压缩），固定尺寸并对第五张起使用原生懒加载；未进行跨设备性能基准比较。
 - 所有 SVG 经 XML 解析检查；已人工查看 `.devtest/catalog/catalog-1440.png`、`catalog-390.png`、`catalog-320.png` 与 `keyboard-focus.png`。`layouts.json` 保存各宽度的布局数据；以上临时产物已被忽略，不进入仓库或发布目录。
 
-验证限于 Chromium 和模拟触摸，未验证 Safari、Firefox 或真实手机，未重测游戏玩法、音效与长局性能。本轮尚未提交、推送或部署。
+验证限于 Chromium 和模拟触摸，未验证 Safari、Firefox 或真实手机，未重测游戏玩法、音效与长局性能。
+
+推送后线上核验（提交 `abb0a3b`，[部署工作流](https://github.com/wowayou/games/actions/workflows/deploy-pages.yml) 成功）：`index.html`、`catalog.css`、`catalog.mjs`、`games.json` 与 8 张封面均返回 HTTP 200；`/games/` 实际页面渲染 8 张卡片、主题依次为 clock、sky、circuit、cosmos、survivor、forge、velocity、wuxia，封面全部加载，1440 像素宽无横向溢出、无控制台错误，计数为「8 款游戏」、草稿入口 1 个，页面不再请求 Google Fonts。首次线上浏览器检查因导航时序未就绪而超时，重跑及独立排查均通过；本地 128 项检查与 23 项测试不受影响。
 
 ## 万家灯火加入策展：2026-10-05
 
