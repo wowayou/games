@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <defs>
+    <linearGradient id="night" x2="0" y2="1"><stop stop-color="#242a52"/><stop offset=".55" stop-color="#4e477a"/><stop offset="1" stop-color="#1d2851"/></linearGradient>
+    <linearGradient id="road" x2="0" y2="1"><stop stop-color="#333663"/><stop offset="1" stop-color="#141c3b"/></linearGradient>
+    <linearGradient id="car" x2="0" y2="1"><stop stop-color="#939cc7"/><stop offset="1" stop-color="#4e608b"/></linearGradient>
+  </defs>
+  <path fill="url(#night)" d="M0 0h640v400H0z"/>
+  <circle cx="442" cy="120" r="73" fill="#ae7a9f" opacity=".3"/>
+  <g fill="#293052"><path d="M175 205v-93h43v93m21 0V60h41v145m13 0v-62h39v62m163 0V73h47v132m14 0V41h48v164m15 0V114h43v91"/></g>
+  <g stroke="#b18fc2" stroke-width="3" opacity=".45"><path d="M248 72v101m11-84v29m248-32v89m68-118v118m12-70v40"/></g>
+  <path d="M379 186h60L640 400H207Z" fill="url(#road)"/>
+  <path d="M379 186 253 400m186-214 201 187" stroke="#88bfe5" stroke-width="3"/>
+  <path d="m387 186-91 214m135-214 166 214" stroke="#c46bba" stroke-width="4"/>
+  <path d="m410 194 2 15m4 17 4 24m8 30 10 46m14 38 12 36" stroke="#ddd9e8" stroke-width="4"/>
+  <g stroke="#7396bd" stroke-width="1" opacity=".35"><path d="m295 54-25 59m77-90-31 81m220 14-36 99m55 23-32 89m-45-65-15 48m-247-69-16 46"/></g>
+  <path d="m422 338 30-19 107 3 40 41-15 21-154-1Z" fill="#839bd7" opacity=".12"/>
+  <g transform="rotate(-7 473 290)">
+    <path d="m392 310 10-35 22-39h86l31 41 9 32-11 26H403Z" fill="#172640" stroke="#bac5df" stroke-width="2"/>
+    <path d="m411 272 21-30h70l24 30Z" fill="#6b81aa"/><path d="m420 268 16-22h61l20 22Z" fill="#253858"/>
+    <path d="m402 279 139 1 8 29-21 13H412l-18-13Z" fill="url(#car)"/>
+    <path d="M393 286h158v9H393Z" fill="#253451"/>
+    <path d="M393 285h158" stroke="#c3c9e3" stroke-width="4"/>
+    <path d="m405 307 31 3m68 0 31-3" stroke="#ff939d" stroke-width="7"/>
+    <path d="M449 319h44v10h-44Z" fill="#c0cfde"/>
+    <path d="M406 335v11m126-11v11" stroke="#0b192c" stroke-width="15"/>
+  </g>
+  <g stroke="#c99bcc" stroke-width="2" opacity=".7"><path d="m550 328 45 22m-213-90-45 20m206-67 43 10m-214-34-51 20"/></g>
+</svg>

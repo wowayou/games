@@ -16,7 +16,18 @@ async function exists(path) {
 export async function buildSite(root = projectRoot) {
   const games = validateCatalog(JSON.parse(await readFile(join(root, 'games.json'), 'utf8')));
   const visible = games.filter(game => game.status !== 'hidden');
-  const files = ['index.html', 'catalog.mjs'];
+  const files = ['index.html', 'catalog.mjs', 'catalog.css'];
+  const artThemes = new Set(visible.filter(game => game.status === 'published' && game.theme).map(game => game.theme));
+  if (artThemes.size) {
+    const artDirectory = await exists(join(root, 'art'));
+    if (!artDirectory?.isDirectory() || artDirectory.isSymbolicLink()) throw new Error('art 必须是普通封面目录。');
+    for (const theme of artThemes) {
+      const file = join('art', `${theme}.svg`);
+      const info = await exists(join(root, file));
+      if (!info?.isFile() || info.isSymbolicLink()) throw new Error(`${file}：封面缺失或不是普通文件。`);
+      files.push(file);
+    }
+  }
   for (const game of visible.filter(game => game.directory)) {
     const directory = join(root, game.directory);
     const info = await exists(directory);

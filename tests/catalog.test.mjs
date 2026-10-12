@@ -3,7 +3,7 @@ import { access, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } fro
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { loadCatalog, renderCatalog, validateCatalog } from '../catalog.mjs';
+import { loadCatalog, renderCatalog, themes, validateCatalog } from '../catalog.mjs';
 import { buildSite } from '../scripts/build-site.mjs';
 
 const config = () => ({ games: [
@@ -20,8 +20,12 @@ async function save(root, catalog) {
 async function fixture(t) {
   const root = await mkdtemp(join(tmpdir(), 'games-catalog-test-'));
   t.after(() => rm(root, { recursive: true, force: true }));
-  for (const file of ['index.html', 'catalog.mjs']) {
+  for (const file of ['index.html', 'catalog.mjs', 'catalog.css']) {
     await writeFile(join(root, file), await readFile(new URL(`../${file}`, import.meta.url)));
+  }
+  await mkdir(join(root, 'art'));
+  for (const theme of [...themes].filter(Boolean)) {
+    await writeFile(join(root, 'art', `${theme}.svg`), await readFile(new URL(`../art/${theme}.svg`, import.meta.url)));
   }
   for (const directory of ['racing', 'office']) {
     await mkdir(join(root, directory));
@@ -72,6 +76,7 @@ test('empty catalogs and draft-only catalogs have an honest empty state', async 
   await loadCatalog(document, async () => ({ ok: true, json: async () => ({ games: [] }) }));
   assert.equal(document.elements.games.innerHTML, '');
   assert.equal(document.elements['draft-links'].innerHTML, '');
+  assert.equal(document.elements['draft-links'].hidden, true);
   assert.equal(document.elements['catalog-status'].hidden, false);
   assert.match(document.elements['catalog-status'].textContent, /暂时没有开放/);
 });
@@ -80,10 +85,11 @@ test('card text is escaped and local links work below the Pages subpath', () => 
   const raw = config();
   Object.assign(raw.games[0], {
     name: '<img src=x onerror=alert(1)>', title: ['<script>', 'A & B'],
-    description: '<svg onload=alert(1)>', tags: ['<b>tag</b>'],
+    description: '<svg onload=alert(1)>', tags: ['<b>tag</b>'], playHint: '<input autofocus>',
   });
   const view = renderCatalog(raw);
-  assert.doesNotMatch(view.cards, /<img|<script|<svg|<b>/);
+  assert.doesNotMatch(view.cards, /<img|<script|<svg|<b>|<input/);
+  assert.match(view.cards, /&lt;input autofocus&gt;/);
   assert.match(view.cards, /&lt;img/);
   assert.match(view.cards, /A &amp; B/);
   assert.equal(new URL('racing/', 'https://wowayou.github.io/games/').href,
@@ -94,6 +100,7 @@ test('invalid states, duplicate entries, unsafe paths and unsafe URLs fail valid
   for (const patch of [
     { status: 'publised' }, { directory: '../outside' }, { directory: '/tmp' },
     { directory: 'nested/game' }, { tags: 'not-an-array' }, { theme: 'bad"class' },
+    { theme: '../outside' }, { theme: 'unknown' }, { playHint: 123 },
     { url: 'https://example.com/' },
   ]) {
     const raw = config();
@@ -131,7 +138,8 @@ test('publication includes published and draft resources but no hidden games, te
   const result = await buildSite(root);
   assert.equal(result.published, 1);
   assert.equal(result.drafts, 1);
-  assert.deepEqual((await readdir(result.output)).sort(), ['catalog.mjs', 'games.json', 'index.html', 'office', 'racing']);
+  assert.deepEqual((await readdir(result.output)).sort(), ['catalog.css', 'catalog.mjs', 'games.json', 'index.html', 'office', 'racing']);
+  assert.equal(await readFile(join(result.output, 'catalog.css'), 'utf8'), await readFile(join(root, 'catalog.css'), 'utf8'));
   assert.deepEqual((await readdir(join(result.output, 'racing'))).sort(), ['game.js', 'index.html', 'style.css']);
   assert.equal(await readFile(join(result.output, 'racing/game.js'), 'utf8'), 'racing/game.js');
   const visible = JSON.parse(await readFile(join(result.output, 'games.json'), 'utf8'));
@@ -173,7 +181,7 @@ test('a fully hidden selection produces only the lobby, module and empty public 
   raw.games.forEach(game => { game.status = 'hidden'; });
   await save(root, raw);
   const result = await buildSite(root);
-  assert.deepEqual((await readdir(result.output)).sort(), ['catalog.mjs', 'games.json', 'index.html']);
+  assert.deepEqual((await readdir(result.output)).sort(), ['catalog.css', 'catalog.mjs', 'games.json', 'index.html']);
   assert.deepEqual(JSON.parse(await readFile(join(result.output, 'games.json'), 'utf8')), { games: [] });
 });
 
@@ -190,10 +198,99 @@ test('invalid selection and missing resources fail without replacing the previou
   await assert.rejects(buildSite(root), SyntaxError);
   assert.equal(await readFile(join(result.output, 'games.json'), 'utf8'), before);
   await save(root, config());
-  await rm(join(root, 'catalog.mjs'));
-  await assert.rejects(buildSite(root), { code: 'ENOENT' });
-  assert.equal(await readFile(join(result.output, 'games.json'), 'utf8'), before);
+  for (const file of ['catalog.mjs', 'catalog.css']) {
+    const content = await readFile(join(root, file));
+    await rm(join(root, file));
+    await assert.rejects(buildSite(root), { code: 'ENOENT' });
+    assert.equal(await readFile(join(result.output, 'games.json'), 'utf8'), before);
+    await writeFile(join(root, file), content);
+  }
   assert.ok((await readdir(root)).every(name => !name.startsWith('.site-build-')));
+});
+
+test('all supported themes have local decorative art, safe markup and a complete unthemed default', async () => {
+  const css = await readFile(new URL('../catalog.css', import.meta.url), 'utf8');
+  for (const theme of themes) {
+    const raw = config();
+    Object.assign(raw.games[0], { theme, playHint: '需要键盘操作' });
+    const view = renderCatalog(raw);
+    assert.match(view.cards, /aria-labelledby="title-racing" aria-describedby="hint-racing"/);
+    assert.match(view.cards, /<h3 id="title-racing">赛车<\/h3>/);
+    assert.match(view.cards, /id="hint-racing">需要键盘操作/);
+    assert.match(view.cards, /开始游戏/);
+    if (theme) {
+      assert.ok(view.cards.includes(`src="art/${theme}.svg" alt="" width="640" height="400"`));
+      assert.ok(css.includes(`.game.${theme} {`), `${theme} has presentation tokens`);
+      const svg = await readFile(new URL(`../art/${theme}.svg`, import.meta.url), 'utf8');
+      assert.match(svg, /viewBox="0 0 640 400"/);
+      assert.doesNotMatch(svg, /<script|<foreignObject|<image|\bon\w+\s*=|(?:href|src)="https?:/i);
+    } else {
+      assert.doesNotMatch(view.cards, /<img/);
+    }
+  }
+  assert.equal(validateCatalog(config())[0].playHint, '浏览器即玩');
+});
+
+test('rendering reserves image space and defers artwork below the first four cards', () => {
+  const games = Array.from({ length: 6 }, (_, i) => ({
+    id: `sample-${i}`, name: `游戏 ${i}`, status: 'published', theme: 'sky', url: 'https://example.com/',
+  }));
+  const view = renderCatalog({ games });
+  assert.equal((view.cards.match(/loading="eager"/g) ?? []).length, 4);
+  assert.equal((view.cards.match(/loading="lazy"/g) ?? []).length, 2);
+  assert.match(view.cards, /class="card-number">06/);
+});
+
+test('failed reloads clear stale cards and counts, and a later successful request recovers', async t => {
+  t.mock.method(console, 'error', () => {});
+  const document = page();
+  const load = () => loadCatalog(document, async () => ({ ok: true, json: async () => config() }));
+  await load();
+  assert.match(document.elements['catalog-summary'].textContent, /^1 款游戏/);
+  assert.equal(document.elements['catalog-status'].hidden, true);
+  await loadCatalog(document, async () => { throw new Error('offline'); });
+  assert.equal(document.elements.games.innerHTML, '');
+  assert.equal(document.elements['draft-links'].innerHTML, '');
+  assert.equal(document.elements['catalog-summary'].textContent, '浏览器游戏收藏');
+  assert.equal(document.elements['catalog-status'].hidden, false);
+  await load();
+  assert.match(document.elements.games.innerHTML, /href="racing\/"/);
+  assert.equal(document.elements['catalog-status'].hidden, true);
+});
+
+test('publication copies only unique published artwork and removes it after hiding a game', async t => {
+  const root = await fixture(t);
+  const raw = config();
+  raw.games[0].theme = 'sky';
+  raw.games[1].theme = 'wuxia'; // Drafts have text links, not artwork.
+  raw.games[2].theme = 'forge';
+  Object.assign(raw.games[3], { status: 'published', theme: 'sky' });
+  await save(root, raw);
+  const result = await buildSite(root);
+  assert.deepEqual(await readdir(join(result.output, 'art')), ['sky.svg']);
+  assert.equal(await readFile(join(result.output, 'art/sky.svg'), 'utf8'), await readFile(join(root, 'art/sky.svg'), 'utf8'));
+  assert.match(renderCatalog(JSON.parse(await readFile(join(result.output, 'games.json'), 'utf8'))).cards, /art\/sky.svg/);
+  raw.games[0].status = raw.games[3].status = 'hidden';
+  await save(root, raw);
+  await buildSite(root);
+  await assert.rejects(access(join(result.output, 'art')), { code: 'ENOENT' });
+});
+
+test('missing or symlinked artwork fails without replacing valid output', async t => {
+  const root = await fixture(t);
+  const raw = config();
+  raw.games[0].theme = 'sky';
+  await save(root, raw);
+  const result = await buildSite(root);
+  const before = await readFile(join(result.output, 'games.json'), 'utf8');
+  await rm(join(root, 'art/sky.svg'));
+  await assert.rejects(buildSite(root), /封面缺失/);
+  await symlink(join(root, 'art/forge.svg'), join(root, 'art/sky.svg'));
+  await assert.rejects(buildSite(root), /不是普通文件/);
+  await rm(join(root, 'art'), { recursive: true });
+  await symlink(join(result.output, 'art'), join(root, 'art'));
+  await assert.rejects(buildSite(root), /普通封面目录/);
+  assert.equal(await readFile(join(result.output, 'games.json'), 'utf8'), before);
 });
 
 test('an independent Git repository cannot be accidentally included as local game files', async t => {

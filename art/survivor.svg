@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <defs>
+    <radialGradient id="field" cx=".68" cy=".45"><stop stop-color="#3b5231"/><stop offset="1" stop-color="#15251e"/></radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#b0d57c" stroke-opacity=".12"/></pattern>
+  </defs>
+  <path fill="url(#field)" d="M0 0h640v400H0z"/><path fill="url(#grid)" d="M0 0h640v400H0z"/>
+  <g fill="none" stroke="#a8d579"><circle cx="441" cy="192" r="126" opacity=".2"/><circle cx="441" cy="192" r="87" stroke-dasharray="4 8" opacity=".45"/><circle cx="441" cy="192" r="51" opacity=".2"/></g>
+  <path d="m440 183-79-99 60 24 19 75 118-30-70 52-48-22-29 105-15-70Z" fill="#c0ed77" opacity=".15"/>
+  <path d="m441 171 1-88m14 98 99-43m-129 64-49 90" fill="none" stroke="#d5ff8a" stroke-width="3" stroke-dasharray="12 14"/>
+  <path d="m431 185 14-27 10 29 29 11-29 8-13 25-9-25-24-9Z" fill="#d5fa84"/>
+  <path d="m431 185 24 2-13 19Z" fill="#88b350"/>
+  <circle cx="441" cy="196" r="6" fill="#f4ffe0"/>
+  <g fill="#d482b4" stroke="#eea0c1" stroke-width="2"><path d="m321 100 14 8-3 17-16 2-8-15Zm218 137 18 3 6 19-15 12-16-13ZM477 54l9 5-1 12-13 3-8-11ZM345 257l12 3 2 15-14 7-10-14ZM581 85l14-6 12 10-5 17-17-2Z"/></g>
+  <g fill="#d583aa"><circle cx="308" cy="210" r="5"/><circle cx="520" cy="320" r="5"/><circle cx="603" cy="189" r="5"/><circle cx="351" cy="56" r="4"/></g>
+  <g fill="#d9f59e"><path d="m369 162 5-5 5 5-5 5zm116 95 5-5 5 5-5 5zm16-143 5-5 5 5-5 5zm-130 98 5-5 5 5-5 5z"/></g>
+  <g stroke="#9cc96a" stroke-width="2" fill="none" opacity=".5"><path d="M279 109V86h23m278 221h23v-23M564 45h38v22M273 331v23h39"/></g>
+  <g fill="#a3c96c" opacity=".5"><path d="M555 358h9v16h-9zm15-8h9v24h-9zm15-9h9v33h-9zm15-9h9v42h-9z"/></g>
+</svg>

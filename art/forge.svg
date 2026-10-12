@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <defs>
+    <radialGradient id="heat" cx=".7" cy=".55"><stop stop-color="#bc5931"/><stop offset="1" stop-color="#4b2624"/></radialGradient>
+    <radialGradient id="ball" cx=".35" cy=".3"><stop stop-color="#fff6b9"/><stop offset=".5" stop-color="#ffc267"/><stop offset="1" stop-color="#ef6737"/></radialGradient>
+    <linearGradient id="steel" x2="0" y2="1"><stop stop-color="#87715d"/><stop offset="1" stop-color="#423731"/></linearGradient>
+  </defs>
+  <path fill="url(#heat)" d="M0 0h640v400H0z"/>
+  <path d="m319 400 18-40-14-44 34-21-9-49 38 5 16-73 25 62 21-92 27 86 30-40 10 60 39-19-9 68 34 7-5 49 34 41Z" fill="#e97c3d" opacity=".18"/>
+  <g fill="#985038" stroke="#ba6d44" stroke-width="2" transform="rotate(-8 459 90)"><rect x="325" y="76" width="63" height="32" rx="3"/><rect x="397" y="76" width="63" height="32" rx="3"/><rect x="469" y="76" width="63" height="32" rx="3"/><rect x="361" y="35" width="63" height="32" rx="3"/><rect x="433" y="35" width="63" height="32" rx="3"/><path d="m546 66 37-10 9 30-42 11Z"/></g>
+  <path d="m426 111 11 33m52-29-12 28m56-26-26 32" stroke="#ffbf66" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="463" cy="179" r="57" fill="#f6a24d" opacity=".14"/><circle cx="463" cy="179" r="43" fill="#f6a24d" opacity=".19"/>
+  <circle cx="463" cy="179" r="29" fill="url(#ball)"/><circle cx="454" cy="170" r="8" fill="#fff3c0" opacity=".75"/>
+  <path d="m453 217-39 47" stroke="#ffcc80" stroke-width="4" stroke-dasharray="5 8"/>
+  <path d="M335 266h170l63-31h35l-13 30-54 28h-41l-26 30v26h37v15H374v-15h34v-26l-35-29h-38Z" fill="#332d2b"/>
+  <path d="M325 254h181l62-30h37l-17 28-59 30h-49l-26 30v30h35v14H368v-14h34v-31l-37-29h-40Z" fill="url(#steel)" stroke="#b99368" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M325 254h181l62-30h37l-18 16-60 27H325Z" fill="#c6a074"/>
+  <path d="m426 293 7 6-7 6-7-6Z" fill="#efb974"/>
+  <g fill="#ffc071"><path d="m322 187 5-14 4 14-4 14zm248-14 4-11 4 11-4 12zm-49 37 4-10 4 10-4 10z"/><circle cx="371" cy="157" r="3"/><circle cx="594" cy="313" r="3"/><circle cx="339" cy="333" r="2"/></g>
+  <path d="M273 394q134-23 367-6" stroke="#e9914b" stroke-width="3" opacity=".3"/>
+</svg>

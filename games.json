@@ -6,7 +6,9 @@
       "status": "published",
       "url": "https://wowayou.github.io/six-pm-sprint/",
       "title": ["SIX PM", "SPRINT"],
-      "badge": "ONE TAP · SURVIVAL",
+      "theme": "clock",
+      "playHint": "轻触 / 空格",
+      "badge": "反应 · 生存",
       "description": "45 秒下班挑战：轻触或按空格反向，躲开临时加会，在每日同图里争取准点下班。",
       "tags": ["单指操作", "45 秒一局", "每日挑战"]
     },
@@ -16,7 +18,9 @@
       "status": "published",
       "url": "https://wowayou.github.io/cat-flap/",
       "title": ["CAT", "FLAP"],
-      "badge": "ONE TAP · FLYING",
+      "theme": "sky",
+      "playHint": "手机 / 电脑",
+      "badge": "轻松 · 飞行",
       "description": "披红斗篷的橘猫一点就冲：穿过猫爬架，再把幽灵猫发给朋友，在同一条航线上比赛。",
       "tags": ["单指操作", "好友幽灵赛", "手机友好"]
     },
@@ -26,7 +30,9 @@
       "status": "published",
       "url": "https://wowayou.github.io/city-lights/",
       "title": ["CITY", "LIGHTS"],
-      "badge": "PUZZLE · DAILY",
+      "theme": "circuit",
+      "playHint": "手机 / 电脑",
+      "badge": "解谜 · 每日一题",
       "description": "转动电线，把每一户人家都点亮；每日一题，全城灯火从电站一路亮开。",
       "tags": ["解谜", "每日一题", "手机友好"]
     },
@@ -36,7 +42,9 @@
       "status": "published",
       "url": "https://wowayou.github.io/cosmic-merge/",
       "title": ["COSMIC", "MERGE"],
-      "badge": "CANVAS · MERGE",
+      "theme": "cosmos",
+      "playHint": "触屏 / 鼠标",
+      "badge": "物理 · 合成",
       "description": "投放并合成相同天体，从星尘一路演化到黑洞。",
       "tags": ["天体合成", "物理碰撞"]
     },
@@ -47,7 +55,8 @@
       "directory": "neon-survivors",
       "theme": "survivor",
       "title": ["NEON", "SURVIVORS"],
-      "badge": "SURVIVOR · BULLET HEAVEN",
+      "playHint": "触屏 / 键盘",
+      "badge": "弹幕 · 生存",
       "description": "在霓虹废墟生存到最后：移动躲避、武器自动开火、升级选技能、满屏弹幕与 Boss。",
       "tags": ["割草生存", "技能构筑", "自动战斗"]
     },
@@ -58,7 +67,8 @@
       "directory": "forge-breaker",
       "theme": "forge",
       "title": ["HELL", "FORGE"],
-      "badge": "ROGUELITE · BREAKOUT",
+      "playHint": "触屏 / 键盘",
+      "badge": "肉鸽 · 打砖块",
       "description": "把元素球打入深渊：火冰雷构筑、融合进化、Boss 波次、矿石锻造与炉心保卫。",
       "tags": ["肉鸽打砖块", "球种融合", "锻造升级"]
     },
@@ -68,8 +78,10 @@
       "status": "published",
       "directory": "neon-velocity",
       "title": ["NEON", "VELOCITY"],
-      "badge": "THREE.JS · 3D RACING",
-      "description": "电脑体验更佳。穿越雨夜新九龙：WASD 驾驶、硬核 AI、加速带、有限氮气、碰撞与三圈计时。",
+      "theme": "velocity",
+      "playHint": "电脑体验更佳",
+      "badge": "竞速 · 3D 城市",
+      "description": "穿越雨夜新九龙：WASD 驾驶、硬核 AI、加速带、有限氮气、碰撞与三圈计时。",
       "tags": ["赛博朋克", "3D 城市", "合成音乐"]
     },
     {
@@ -88,7 +100,9 @@
       "status": "published",
       "url": "https://wowayou.github.io/linan-xia-ying/",
       "title": ["LIN'AN", "SHADOW"],
-      "badge": "THREE.JS · ACTION",
+      "theme": "wuxia",
+      "playHint": "需要键盘操作",
+      "badge": "武侠 · 冒险",
       "description": "穿行南宋临安古街、竹林与西湖，挥剑、飞镖和轻功闯关。",
       "tags": ["武侠动作", "3D 闯关"]
     },

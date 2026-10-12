@@ -1,6 +1,6 @@
 const slug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const statuses = new Set(['published', 'draft', 'hidden']);
-const themes = new Set(['', 'forge', 'survivor']);
+export const themes = new Set(['', 'clock', 'sky', 'circuit', 'cosmos', 'survivor', 'forge', 'velocity', 'wuxia']);
 const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 }[char]));
@@ -37,15 +37,16 @@ export function validateCatalog(config) {
     }
     const tags = game.tags ?? [];
     if (!Array.isArray(tags) || tags.some(tag => typeof tag !== 'string')) fail('tags 必须是文字数组。');
-    for (const field of ['badge', 'description']) {
+    for (const field of ['badge', 'description', 'playHint']) {
       if (game[field] !== undefined && typeof game[field] !== 'string') fail(`${field} 必须是文字。`);
     }
-    if (!themes.has(game.theme ?? '')) fail('theme 只能为空、forge 或 survivor。');
+    if (!themes.has(game.theme ?? '')) fail(`theme 必须为空或已支持的主题：${[...themes].filter(Boolean).join('、')}。`);
     return {
       id: game.id, name: game.name, status: game.status,
       ...(local ? { directory: game.directory } : { url: game.url }),
       title, tags, theme: game.theme ?? '',
-      badge: game.badge ?? 'BROWSER GAME', description: game.description ?? '',
+      badge: game.badge ?? '浏览器游戏', description: game.description ?? '',
+      playHint: game.playHint?.trim() || '浏览器即玩',
     };
   });
 }
@@ -57,31 +58,48 @@ export function renderCatalog(config) {
   const href = game => escapeHTML(game.directory ? `${game.directory}/` : game.url);
   return {
     count: published.length,
-    cards: published.map(game => `<a class="game${game.theme ? ` ${game.theme}` : ''}" href="${href(game)}">
-      <div class="badge">${escapeHTML(game.badge)}</div>
-      <h2>${escapeHTML(game.title[0])}${game.title[1] ? ` <em>${escapeHTML(game.title[1])}</em>` : ''}</h2>
-      <div class="cn">${escapeHTML(game.name)}</div>
-      <p class="desc">${escapeHTML(game.description)}</p>
-      <div class="tags">${game.tags.map(tag => `<span>${escapeHTML(tag)}</span>`).join('')}</div>
-      <div class="arrow" aria-hidden="true">→</div>
+    cards: published.map((game, index) => `<a class="game${game.theme ? ` ${game.theme}` : ''}" href="${href(game)}" aria-labelledby="title-${game.id}" aria-describedby="hint-${game.id}">
+      <div class="cover" aria-hidden="true">
+        ${game.theme ? `<img class="cover-art" src="art/${game.theme}.svg" alt="" width="640" height="400" loading="${index < 4 ? 'eager' : 'lazy'}" decoding="async">` : ''}
+        <span class="badge">${escapeHTML(game.badge)}</span>
+        <span class="card-number">${String(index + 1).padStart(2, '0')}</span>
+        <div class="cover-title">${game.title.map(part => `<span>${escapeHTML(part)}</span>`).join('')}</div>
+      </div>
+      <div class="game-body">
+        <h3 id="title-${game.id}">${escapeHTML(game.name)}</h3>
+        <p class="desc">${escapeHTML(game.description)}</p>
+        <div class="tags">${game.tags.map(tag => `<span>${escapeHTML(tag)}</span>`).join('')}</div>
+        <div class="card-footer">
+          <span class="play-hint" id="hint-${game.id}">${escapeHTML(game.playHint)}</span>
+          <span class="play-link">开始游戏 <span aria-hidden="true">↗</span></span>
+        </div>
+      </div>
     </a>`).join('\n'),
-    drafts: drafts.map(game => ` · <a href="${href(game)}">草稿 · ${escapeHTML(game.name)}</a>`).join(''),
+    drafts: drafts.map(game => `<a href="${href(game)}"><span>草稿试玩</span>${escapeHTML(game.name)}<span aria-hidden="true">↗</span></a>`).join(''),
     empty: drafts.length ? '正式游戏准备中，可先体验下方草稿。' : '暂时没有开放的游戏。',
   };
 }
 
 export async function loadCatalog(document, fetchConfig) {
   const status = document.getElementById('catalog-status');
+  const draftLinks = document.getElementById('draft-links');
+  status.textContent = '正在打开游戏收藏…';
+  status.hidden = false;
   try {
     const response = await fetchConfig();
     if (!response.ok) throw new Error(`游戏目录请求失败：HTTP ${response.status}`);
     const view = renderCatalog(await response.json());
     document.getElementById('games').innerHTML = view.cards;
-    document.getElementById('draft-links').innerHTML = view.drafts;
-    document.getElementById('catalog-summary').textContent = `${view.count} 款浏览器游戏 · 音效与数据均在本地运行`;
+    draftLinks.innerHTML = view.drafts;
+    draftLinks.hidden = !view.drafts;
+    document.getElementById('catalog-summary').textContent = `${view.count} 款游戏 · 打开就能玩`;
     status.textContent = view.count ? '' : view.empty;
     status.hidden = view.count > 0;
   } catch (error) {
+    document.getElementById('games').innerHTML = '';
+    draftLinks.innerHTML = '';
+    draftLinks.hidden = true;
+    document.getElementById('catalog-summary').textContent = '浏览器游戏收藏';
     status.textContent = '游戏列表暂时无法加载，请刷新重试。';
     status.hidden = false;
     console.error(error);
