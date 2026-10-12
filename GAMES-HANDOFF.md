@@ -91,6 +91,8 @@ _site/
 
 本地验收：23 项配置/发布/模拟测试通过；`scripts/catalog-smoke.mjs` 在实际 `_site/` 的 `/games/` 路径下通过 128 项浏览器检查，含 11 个视口宽度、文本对比度、键盘及触摸入口、减少动态效果和异常状态。已查看桌面、窄屏和焦点截图；详见 `TEST-REPORT.md`。本轮尚未提交、推送或部署。
 
+上线后发现缓存错版：GitHub Pages 逐文件缓存 10 分钟，旧 `index.html` 与新 `catalog.mjs` 混用。现由打包脚本写入内容版本号，模块检测到页面版本不一致时自动刷新一次；细节见 README「部署」与 `TEST-REPORT.md`。修改大厅时保留 `index.html` 中的 `<html lang="zh-CN">`、`href="catalog.css"`、`src="catalog.mjs"` 以及 `catalog.mjs` 的 `export const BUILD = 'dev';`，打包靠这些标记替换版本，缺失会报错。
+
 ## 游戏策展评估（2026-10-02）
 
 用户先要求「检查候选游戏，给出上架与排序建议」，随后认可五款方案并授权推送发布。`games.json` 已落实状态、顺序及赛车的「电脑体验更佳」提示；发布由根部署工作流执行，[实际状态以 GitHub Actions 为准](https://github.com/wowayou/games/actions/workflows/deploy-pages.yml)。以下保留评估依据与最终选择；短时自动化试玩不能证明长期好玩。

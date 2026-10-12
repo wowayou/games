@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { access, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import test from 'node:test';
-import { loadCatalog, renderCatalog, themes, validateCatalog } from '../catalog.mjs';
+import { BUILD, isStalePage, loadCatalog, recoverStalePage, renderCatalog, themes, validateCatalog } from '../catalog.mjs';
 import { buildSite } from '../scripts/build-site.mjs';
 
 const config = () => ({ games: [
@@ -238,7 +239,66 @@ test('rendering reserves image space and defers artwork below the first four car
   const view = renderCatalog({ games });
   assert.equal((view.cards.match(/loading="eager"/g) ?? []).length, 4);
   assert.equal((view.cards.match(/loading="lazy"/g) ?? []).length, 2);
-  assert.match(view.cards, /class="card-number">06/);
+  assert.doesNotMatch(view.cards, /card-number/);
+});
+
+test('publication stamps one content version into the lobby page, module, styles and covers', async t => {
+  const root = await fixture(t);
+  const raw = config();
+  raw.games[0].theme = 'sky';
+  await save(root, raw);
+  const first = await buildSite(root);
+  assert.match(first.build, /^[0-9a-f]{10}$/);
+  const html = await readFile(join(first.output, 'index.html'), 'utf8');
+  assert.ok(html.includes(`<html lang="zh-CN" data-build="${first.build}">`));
+  assert.ok(html.includes(`href="catalog.css?v=${first.build}"`));
+  assert.ok(html.includes(`src="catalog.mjs?v=${first.build}"`));
+  assert.equal(BUILD, 'dev');
+  assert.match(await readFile(join(root, 'catalog.mjs'), 'utf8'), /export const BUILD = 'dev';/);
+  const built = await import(`${pathToFileURL(join(first.output, 'catalog.mjs')).href}?t=${first.build}`);
+  assert.equal(built.BUILD, first.build);
+  assert.match(built.renderCatalog(raw).cards, new RegExp(`src="art/sky\\.svg\\?v=${first.build}"`));
+  assert.equal((await buildSite(root)).build, first.build);
+  await writeFile(join(root, 'art/sky.svg'), `${await readFile(join(root, 'art/sky.svg'), 'utf8')}<!-- changed -->\n`);
+  assert.notEqual((await buildSite(root)).build, first.build);
+});
+
+test('a lobby file without its version marker fails without replacing valid output', async t => {
+  const root = await fixture(t);
+  const result = await buildSite(root);
+  const before = await readFile(join(result.output, 'index.html'), 'utf8');
+  const module = await readFile(join(root, 'catalog.mjs'), 'utf8');
+  await writeFile(join(root, 'catalog.mjs'), module.replace("export const BUILD = 'dev';", "export const BUILD = 'x';"));
+  await assert.rejects(buildSite(root), /版本标记/);
+  await writeFile(join(root, 'catalog.mjs'), module);
+  const html = await readFile(join(root, 'index.html'), 'utf8');
+  await writeFile(join(root, 'index.html'), html.replace('href="catalog.css"', 'href="./catalog.css"'));
+  await assert.rejects(buildSite(root), /版本标记/);
+  assert.equal(await readFile(join(result.output, 'index.html'), 'utf8'), before);
+  assert.ok((await readdir(root)).every(name => !name.startsWith('.site-build-')));
+});
+
+test('a page cached from another deploy reloads once, then asks for a refresh instead of looping', () => {
+  const doc = build => ({ documentElement: { dataset: build ? { build } : {} }, ...page() });
+  assert.equal(isStalePage(doc(), 'dev'), false);
+  assert.equal(isStalePage(doc('abc'), 'abc'), false);
+  assert.equal(isStalePage(doc(), 'abc'), true);
+  assert.equal(isStalePage(doc('old'), 'abc'), true);
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  let reloads = 0;
+  const location = { reload: () => { reloads++; } };
+  const stale = doc('old');
+  assert.equal(recoverStalePage(stale, location, storage, 'abc'), 'reload');
+  assert.equal(recoverStalePage(stale, location, storage, 'abc'), 'message');
+  assert.equal(reloads, 1);
+  assert.match(stale.elements['catalog-status'].textContent, /刷新/);
+  assert.equal(stale.elements['catalog-status'].hidden, false);
+  const blocked = doc();
+  const throwing = { getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); } };
+  assert.equal(recoverStalePage(blocked, location, throwing, 'abc'), 'message');
+  assert.equal(recoverStalePage(doc(), location, null, 'abc'), 'message');
+  assert.equal(reloads, 1);
 });
 
 test('failed reloads clear stale cards and counts, and a later successful request recovers', async t => {

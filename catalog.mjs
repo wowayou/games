@@ -1,3 +1,5 @@
+// Replaced by scripts/build-site.mjs with a content hash; source files stay unversioned for local preview.
+export const BUILD = 'dev';
 const slug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const statuses = new Set(['published', 'draft', 'hidden']);
 export const themes = new Set(['', 'clock', 'sky', 'circuit', 'cosmos', 'survivor', 'forge', 'velocity', 'wuxia']);
@@ -60,9 +62,8 @@ export function renderCatalog(config) {
     count: published.length,
     cards: published.map((game, index) => `<a class="game${game.theme ? ` ${game.theme}` : ''}" href="${href(game)}" aria-labelledby="title-${game.id}" aria-describedby="hint-${game.id}">
       <div class="cover" aria-hidden="true">
-        ${game.theme ? `<img class="cover-art" src="art/${game.theme}.svg" alt="" width="640" height="400" loading="${index < 4 ? 'eager' : 'lazy'}" decoding="async">` : ''}
+        ${game.theme ? `<img class="cover-art" src="art/${game.theme}.svg${BUILD === 'dev' ? '' : `?v=${BUILD}`}" alt="" width="640" height="400" loading="${index < 4 ? 'eager' : 'lazy'}" decoding="async">` : ''}
         <span class="badge">${escapeHTML(game.badge)}</span>
-        <span class="card-number">${String(index + 1).padStart(2, '0')}</span>
         <div class="cover-title">${game.title.map(part => `<span>${escapeHTML(part)}</span>`).join('')}</div>
       </div>
       <div class="game-body">
@@ -106,6 +107,35 @@ export async function loadCatalog(document, fetchConfig) {
   }
 }
 
+// A page cached from another deploy cannot use this module's markup and styles.
+export function isStalePage(document, build = BUILD) {
+  return build !== 'dev' && document.documentElement?.dataset?.build !== build;
+}
+
+// Reload once so the browser revalidates; if the cache still disagrees, explain instead of looping.
+export function recoverStalePage(document, location, storage, build = BUILD) {
+  const key = `catalog-reload-${build}`;
+  try {
+    if (!storage.getItem(key)) {
+      storage.setItem(key, '1');
+      location.reload();
+      return 'reload';
+    }
+  } catch {}
+  const status = document.getElementById('catalog-status');
+  if (status) {
+    status.textContent = '游戏收藏刚更新，请刷新页面查看最新版本。';
+    status.hidden = false;
+  }
+  return 'message';
+}
+
 if (typeof document !== 'undefined') {
-  loadCatalog(document, () => fetch(new URL('./games.json', import.meta.url), { cache: 'no-cache' }));
+  if (isStalePage(document)) {
+    let storage = null;
+    try { storage = sessionStorage; } catch {}
+    recoverStalePage(document, location, storage);
+  } else {
+    loadCatalog(document, () => fetch(new URL('./games.json', import.meta.url), { cache: 'no-cache' }));
+  }
 }

@@ -68,9 +68,9 @@ h1 em { font-style: normal; color: var(--highlight); }
 .game:focus-visible { outline-color: var(--accent); border-color: var(--accent); }
 .cover { position: relative; isolation: isolate; container-type: inline-size; aspect-ratio: 8 / 5; overflow: hidden; border-radius: 11px 11px 0 0; background: var(--cover-ground); color: var(--cover-ink); }
 .cover-art { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 300ms ease; }
-.cover::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, var(--cover-ground), transparent 75%); opacity: .22; }
+/* Tint the title corner with the theme ground so cover text never competes with the artwork. */
+.cover::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(18deg, var(--cover-ground) 12%, transparent 60%); opacity: .85; }
 .badge { position: absolute; left: 18px; top: 16px; max-width: calc(100% - 66px); border: 1px solid currentColor; padding: 4px 8px; border-radius: 5px; font-size: 11px; line-height: 1.4; letter-spacing: 1px; }
-.card-number { position: absolute; right: 17px; top: 19px; font: 11px/1 ui-monospace, "SFMono-Regular", Consolas, monospace; opacity: .75; }
 .cover-title { position: absolute; left: 19px; bottom: 20px; right: 16px; font-family: "Arial Black", "Segoe UI", sans-serif; font-size: clamp(25px, 10cqw, 36px); font-weight: 900; line-height: .95; letter-spacing: -1px; overflow-wrap: anywhere; }
 .cover-title span { display: block; }
 .game-body { flex: 1; display: flex; flex-direction: column; padding: 21px 19px 0; }

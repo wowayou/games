@@ -15,18 +15,30 @@ const config = JSON.parse(await readFile(join(project, 'games.json'), 'utf8'));
 const games = validateCatalog(config);
 const published = games.filter(game => game.status === 'published');
 const drafts = games.filter(game => game.status === 'draft');
-const { output } = await buildSite();
+const { output, build } = await buildSite();
+// Simulates a page cached before this deploy: no version marker and unversioned lobby assets.
+const staleHtml = (await readFile(join(output, 'index.html'), 'utf8'))
+  .replace(` data-build="${build}"`, '').replaceAll(`?v=${build}`, '');
 const mime = { '.html': 'text/html', '.mjs': 'text/javascript', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 let mode = 'normal';
+let htmlRequests = 0;
 const missing = [];
 const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://local').pathname);
     if (!pathname.startsWith('/games/')) { res.writeHead(404).end(); return; }
-    if (pathname === '/games/games.json' && mode !== 'normal') {
+    if (pathname === '/games/' || pathname === '/games/index.html') {
+      htmlRequests++;
+      if (mode === 'stale-once' || mode === 'stale-always') {
+        if (mode === 'stale-once') mode = 'normal';
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }).end(staleHtml);
+        return;
+      }
+    }
+    const alternatives = { empty: { games: [] }, draft: { games: drafts }, invalid: { games: [{ status: 'typo' }] } };
+    if (pathname === '/games/games.json' && (mode in alternatives || mode === 'http-error')) {
       res.setHeader('Content-Type', 'application/json');
       if (mode === 'http-error') { res.writeHead(503).end('{}'); return; }
-      const alternatives = { empty: { games: [] }, draft: { games: drafts }, invalid: { games: [{ status: 'typo' }] } };
       res.end(JSON.stringify(alternatives[mode]));
       return;
     }
@@ -119,6 +131,7 @@ try {
   })()`);
   check('card body text meets 4.5:1 contrast against its actual background', contrastIssues.length === 0, contrastIssues);
   check('lobby loads no external fonts, images or scripts', await ev(`performance.getEntriesByType('resource').every(entry => new URL(entry.name).origin === location.origin)`));
+  check('page, module, styles and covers share one build version', await ev(`document.documentElement.dataset.build === '${build}' && ['catalog.css', 'catalog.mjs', '/art/'].every(part => performance.getEntriesByType('resource').some(entry => entry.name.includes(part) && entry.name.endsWith('?v=${build}')))`));
   check('normal rendering has no runtime errors or missing resources', errors.length === 0 && missing.length === 0, { errors, missing });
 
   const navigate = async (query, ready) => {
@@ -177,6 +190,17 @@ try {
   errors.length = 0;
   mode = 'normal';
   await navigate('recovery', `document.querySelectorAll('.game').length === ${published.length} && document.getElementById('catalog-status').hidden`);
+  mode = 'stale-once';
+  htmlRequests = 0;
+  await navigate('stale-once', `document.documentElement.dataset.build === '${build}' && document.querySelectorAll('.game').length === ${published.length}`);
+  check('a page cached from an older deploy reloads once and recovers', htmlRequests === 2, htmlRequests);
+  await ev(`sessionStorage.clear()`);
+  mode = 'stale-always';
+  htmlRequests = 0;
+  await navigate('stale-always', `document.getElementById('catalog-status')?.textContent.includes('刚更新')`);
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  check('a cache that stays stale asks for a refresh without a reload loop', htmlRequests === 2 && await ev(`!document.querySelector('.game') && !document.getElementById('catalog-status').hidden`), htmlRequests);
+  mode = 'normal';
   await cmd('Emulation.setScriptExecutionDisabled', { value: true });
   await navigate('no-js', `!!document.querySelector('noscript p')`);
   check('without JavaScript, a readable explanation replaces the loading state', await ev(`document.querySelector('noscript p').getBoundingClientRect().height > 0 && document.getElementById('catalog-status').hidden`));
